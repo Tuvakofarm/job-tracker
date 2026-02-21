@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Tracker - Michael COSYN</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 20px; }
+  .container { max-width: 960px; margin: 0 auto; }
+  
+  /* Header */
+  .header { margin-bottom: 35px; }
+  h1 { font-size: 2rem; margin-bottom: 4px; color: #fff; }
+  h1 span { color: #38bdf8; }
+  .subtitle { color: #94a3b8; font-size: 0.95rem; }
+  .subtitle a { color: #38bdf8; text-decoration: none; }
+  .subtitle a:hover { text-decoration: underline; }
+  
+  /* Profil */
+  .profile { background: #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 25px; display: flex; gap: 25px; flex-wrap: wrap; align-items: center; }
+  .profile-info { flex: 1; min-width: 200px; }
+  .profile-name { font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .profile-title { color: #38bdf8; font-size: 0.9rem; margin-bottom: 8px; }
+  .profile-details { color: #94a3b8; font-size: 0.85rem; line-height: 1.8; }
+  .profile-details span { display: inline-block; margin-right: 15px; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .tag { background: #334155; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; color: #cbd5e1; }
+  
+  /* Stats */
+  .stats { display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
+  .stat { background: #1e293b; border-radius: 10px; padding: 18px 22px; flex: 1; min-width: 130px; text-align: center; }
+  .stat-number { font-size: 2.2rem; font-weight: 700; }
+  .stat-number.blue { color: #38bdf8; }
+  .stat-number.green { color: #4ade80; }
+  .stat-number.yellow { color: #fbbf24; }
+  .stat-number.purple { color: #a78bfa; }
+  .stat-label { font-size: 0.78rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  
+  /* Section title */
+  .section-title { font-size: 1.1rem; color: #fff; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid #334155; }
+  
+  /* Cards */
+  .card { background: #1e293b; border-radius: 12px; padding: 22px; margin-bottom: 15px; border-left: 4px solid #38bdf8; transition: transform 0.2s, box-shadow 0.2s; }
+  .card:hover { transform: translateX(4px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  .card.doubled { border-left-color: #a78bfa; }
+  
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+  .card-title { font-size: 1.15rem; font-weight: 600; color: #fff; }
+  .card-company { color: #38bdf8; font-weight: 500; font-size: 0.95rem; }
+  
+  .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+  .badge-sent { background: #166534; color: #4ade80; }
+  .badge-doubled { background: #4c1d95; color: #c4b5fd; }
+  .badge-pending { background: #854d0e; color: #fbbf24; }
+  .badge-interview { background: #1e3a5f; color: #60a5fa; }
+  
+  .card-meta { display: flex; gap: 18px; flex-wrap: wrap; color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px; }
+  .card-meta span { display: flex; align-items: center; gap: 5px; }
+  
+  .card-channels { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .channel { background: #334155; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1; }
+  
+  /* Expandable details */
+  .card-details { margin-top: 12px; padding-top: 12px; border-top: 1px solid #334155; }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; font-size: 0.83rem; }
+  .detail-label { color: #64748b; }
+  .detail-value { color: #cbd5e1; }
+  .detail-note { grid-column: 1 / -1; margin-top: 8px; padding: 10px; background: #0f172a; border-radius: 8px; color: #94a3b8; font-size: 0.82rem; line-height: 1.5; }
+  
+  details summary { cursor: pointer; color: #64748b; font-size: 0.82rem; }
+  details summary:hover { color: #94a3b8; }
+  details[open] summary { margin-bottom: 8px; }
+  
+  /* Timeline */
+  .timeline { margin-top: 8px; }
+  .timeline-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #94a3b8; padding: 3px 0; }
+  .timeline-dot { width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; flex-shrink: 0; }
+  .timeline-dot.done { background: #4ade80; }
+  .timeline-dot.pending { background: #64748b; }
+  
+  /* Footer */
+  .footer { text-align: center; color: #475569; font-size: 0.8rem; margin-top: 35px; padding-top: 15px; border-top: 1px solid #1e293b; }
+  
+  @media (max-width: 600px) { 
+    .stats { flex-direction: column; } 
+    .detail-grid { grid-template-columns: 1fr; }
+    .profile { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  
+  <!-- Header -->
+  <div class="header">
+    <h1>📋 Job <span>Tracker</span></h1>
+    <p class="subtitle">Suivi de candidatures — Recherche active depuis février 2026</p>
+  </div>
+  
+  <!-- Profil -->
+  <div class="profile">
+    <div class="profile-info">
+      <div class="profile-name">Michael COSYN</div>
+      <div class="profile-title">Technicien Supérieur Systèmes & Réseaux</div>
+      <div class="profile-details">
+        <span>📍 Halluin (59250) — rayon 50km</span>
+        <span>🎓 TSSR — AFCI Arras (2024-2025)</span>
+        <span>💼 +15 ans gestion opérationnelle (Auchan Retail)</span>
+        <span>🔧 Stage Helpdesk — VBTECH</span>
+      </div>
+      <div class="tags">
+        <span class="tag">Helpdesk N1/N2</span>
+        <span class="tag">Support IT</span>
+        <span class="tag">Admin Sys/Réseaux</span>
+        <span class="tag">Windows / AD</span>
+        <span class="tag">GLPI / ITIL</span>
+        <span class="tag">TCP/IP / VPN</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-number blue">2</div>
+      <div class="stat-label">Candidatures</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number green">3</div>
+      <div class="stat-label">Canaux utilisés</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number yellow">0</div>
+      <div class="stat-label">Entretiens</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number purple">0</div>
+      <div class="stat-label">Offres reçues</div>
+    </div>
+  </div>
+
+  <!-- Candidatures -->
+  <h2 class="section-title">🚀 Candidatures</h2>
+
+  <!-- Card 1 -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Ingénieur Support F/H (#Insertion)</div>
+        <div class="card-company">Inzerty / Groupe Vitamine T</div>
+      </div>
+      <span class="badge badge-sent">✅ Envoyée</span>
+    </div>
+    <div class="card-meta">
+      <span>📍 Lille (59)</span>
+      <span>💰 30 000 – 36 000 €/an</span>
+      <span>📝 CDI</span>
+      <span>📅 21/02/2026</span>
+    </div>
+    <div class="card-channels">
+      <span class="channel">Indeed Apply</span>
+    </div>
+    <details>
+      <summary>Voir les détails ▾</summary>
+      <div class="card-details">
+        <div class="detail-grid">
+          <span class="detail-label">Contact recrutement</span>
+          <span class="detail-value">Odile / Kiara (RH), puis Mélina / Khady</span>
+          <span class="detail-label">Process</span>
+          <span class="detail-value">Appel téléphonique → Entretien → Client final</span>
+          <span class="detail-label">Dispo annoncée</span>
+          <span class="detail-value">Mars 2026</span>
+          <span class="detail-label">Prétentions</span>
+          <span class="detail-value">30 000 € brut/an</span>
+          <span class="detail-label">Microsoft (O365/AD/Azure)</span>
+          <span class="detail-value">Intermédiaire</span>
+          <span class="detail-label">ITIL</span>
+          <span class="detail-value">Intermédiaire</span>
+          <span class="detail-label">Ticketing</span>
+          <span class="detail-value">GLPI, Freshdesk, Jira SM</span>
+          <span class="detail-label">Réseau</span>
+          <span class="detail-value">VPN, Wi-Fi, LAN</span>
+        </div>
+        <div class="detail-note">
+          🏢 <strong>Inzerty</strong> = 1ère ESN d'insertion régionale (Groupe Vitamine T). Accompagnement socio-professionnel inclus. Stack : Windows, O365, AD, Azure, VPN, ITSM (ServiceNow, EasyVista), ITIL. Objectif = CDI durable.
+        </div>
+        <div class="timeline">
+          <div class="timeline-item"><span class="timeline-dot done"></span> Candidature envoyée (Indeed Apply)</div>
+          <div class="timeline-item"><span class="timeline-dot pending"></span> En attente — appel téléphonique</div>
+          <div class="timeline-item"><span class="timeline-dot pending"></span> Entretien RH</div>
+          <div class="timeline-item"><span class="timeline-dot pending"></span> Échange client final</div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- Card 2 -->
+  <div class="card doubled">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Technicien Support / Helpdesk</div>
+        <div class="card-company">Helpline</div>
+      </div>
+      <span class="badge badge-doubled">✅ Envoyée x2</span>
+    </div>
+    <div class="card-meta">
+      <span>📍 —</span>
+      <span>📅 21/02/2026</span>
+    </div>
+    <div class="card-channels">
+      <span class="channel">Indeed / France Travail</span>
+      <span class="channel">LinkedIn (doublé + LM)</span>
+    </div>
+    <details>
+      <summary>Voir les détails ▾</summary>
+      <div class="card-details">
+        <div class="detail-grid">
+          <span class="detail-label">Candidature initiale</span>
+          <span class="detail-value">Indeed ou France Travail</span>
+          <span class="detail-label">Doublé via</span>
+          <span class="detail-value">LinkedIn avec LM personnalisée (PDF)</span>
+        </div>
+        <div class="detail-note">
+          🏢 <strong>Helpline</strong> = référence de l'expérience utilisateur en entreprise. +2500 collaborateurs, 23 pays d'intervention, +50% du CAC40 en clients. Candidature renforcée par double canal.
+        </div>
+        <div class="timeline">
+          <div class="timeline-item"><span class="timeline-dot done"></span> Candidature envoyée (Indeed/FT)</div>
+          <div class="timeline-item"><span class="timeline-dot done"></span> Doublé via LinkedIn + LM</div>
+          <div class="timeline-item"><span class="timeline-dot pending"></span> En attente de retour</div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Dernière mise à jour : 21 février 2026 · Propulsé par GitHub Pages
+  </div>
+
+</div>
+</body>
+</html>
