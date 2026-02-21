@@ -3,241 +3,2279 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Job Tracker - Michael COSYN</title>
+<title>🎯 Job Tracker — Nemesis</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 20px; }
-  .container { max-width: 960px; margin: 0 auto; }
   
-  /* Header */
-  .header { margin-bottom: 35px; }
-  h1 { font-size: 2rem; margin-bottom: 4px; color: #fff; }
-  h1 span { color: #38bdf8; }
-  .subtitle { color: #94a3b8; font-size: 0.95rem; }
-  .subtitle a { color: #38bdf8; text-decoration: none; }
-  .subtitle a:hover { text-decoration: underline; }
+  :root {
+    --bg: #0f1117;
+    --bg2: #1a1d27;
+    --bg3: #242836;
+    --border: #2e3348;
+    --text: #e4e4e7;
+    --text2: #9ca3af;
+    --accent: #6366f1;
+    --accent2: #818cf8;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --orange: #f97316;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --purple: #a855f7;
+    --pink: #ec4899;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header h1 span { font-size: 1.8rem; }
+  .header-actions { display: flex; gap: 10px; }
   
-  /* Profil */
-  .profile { background: #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 25px; display: flex; gap: 25px; flex-wrap: wrap; align-items: center; }
-  .profile-info { flex: 1; min-width: 200px; }
-  .profile-name { font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
-  .profile-title { color: #38bdf8; font-size: 0.9rem; margin-bottom: 8px; }
-  .profile-details { color: #94a3b8; font-size: 0.85rem; line-height: 1.8; }
-  .profile-details span { display: inline-block; margin-right: 15px; }
-  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-  .tag { background: #334155; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; color: #cbd5e1; }
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    gap: 16px;
+    padding: 20px 32px;
+    flex-wrap: wrap;
+  }
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 24px;
+    min-width: 140px;
+    flex: 1;
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+    cursor: default;
+  }
+  .stat-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .stat-number { font-size: 2rem; font-weight: 700; }
+  .stat-label { font-size: 0.75rem; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
   
-  /* Stats */
-  .stats { display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
-  .stat { background: #1e293b; border-radius: 10px; padding: 18px 22px; flex: 1; min-width: 130px; text-align: center; }
-  .stat-number { font-size: 2.2rem; font-weight: 700; }
-  .stat-number.blue { color: #38bdf8; }
-  .stat-number.green { color: #4ade80; }
-  .stat-number.yellow { color: #fbbf24; }
-  .stat-number.purple { color: #a78bfa; }
-  .stat-label { font-size: 0.78rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+  /* FILTERS */
+  .filters-bar {
+    padding: 0 32px 16px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-input {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: var(--text);
+    font-size: 0.85rem;
+    width: 250px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text2); }
   
-  /* Section title */
-  .section-title { font-size: 1.1rem; color: #fff; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid #334155; }
-  
-  /* Cards */
-  .card { background: #1e293b; border-radius: 12px; padding: 22px; margin-bottom: 15px; border-left: 4px solid #38bdf8; transition: transform 0.2s, box-shadow 0.2s; }
-  .card:hover { transform: translateX(4px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-  .card.doubled { border-left-color: #a78bfa; }
-  
-  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
-  .card-title { font-size: 1.15rem; font-weight: 600; color: #fff; }
-  .card-company { color: #38bdf8; font-weight: 500; font-size: 0.95rem; }
-  
-  .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
-  .badge-sent { background: #166534; color: #4ade80; }
-  .badge-doubled { background: #4c1d95; color: #c4b5fd; }
-  .badge-pending { background: #854d0e; color: #fbbf24; }
-  .badge-interview { background: #1e3a5f; color: #60a5fa; }
-  
-  .card-meta { display: flex; gap: 18px; flex-wrap: wrap; color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px; }
-  .card-meta span { display: flex; align-items: center; gap: 5px; }
-  
-  .card-channels { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-  .channel { background: #334155; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1; }
-  
-  /* Expandable details */
-  .card-details { margin-top: 12px; padding-top: 12px; border-top: 1px solid #334155; }
-  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; font-size: 0.83rem; }
-  .detail-label { color: #64748b; }
-  .detail-value { color: #cbd5e1; }
-  .detail-note { grid-column: 1 / -1; margin-top: 8px; padding: 10px; background: #0f172a; border-radius: 8px; color: #94a3b8; font-size: 0.82rem; line-height: 1.5; }
-  
-  details summary { cursor: pointer; color: #64748b; font-size: 0.82rem; }
-  details summary:hover { color: #94a3b8; }
-  details[open] summary { margin-bottom: 8px; }
-  
-  /* Timeline */
-  .timeline { margin-top: 8px; }
-  .timeline-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #94a3b8; padding: 3px 0; }
-  .timeline-dot { width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; flex-shrink: 0; }
-  .timeline-dot.done { background: #4ade80; }
-  .timeline-dot.pending { background: #64748b; }
-  
-  /* Footer */
-  .footer { text-align: center; color: #475569; font-size: 0.8rem; margin-top: 35px; padding-top: 15px; border-top: 1px solid #1e293b; }
-  
-  @media (max-width: 600px) { 
-    .stats { flex-direction: column; } 
-    .detail-grid { grid-template-columns: 1fr; }
-    .profile { flex-direction: column; }
+  .filter-btn {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: var(--text2);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* BUTTONS */
+  .btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--accent); }
+  .btn-danger { background: transparent; color: var(--red); border: 1px solid var(--red); }
+  .btn-danger:hover { background: var(--red); color: white; }
+  .btn-small { padding: 5px 10px; font-size: 0.75rem; }
+  .btn-icon { padding: 6px 8px; font-size: 0.9rem; }
+
+  /* TABLE */
+  .table-container {
+    padding: 0 32px 32px;
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg2);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  thead { background: var(--bg3); }
+  th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  th:hover { color: var(--accent2); }
+  td {
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  tr:hover td { background: rgba(99, 102, 241, 0.05); }
+
+  /* STATUS BADGES */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .badge-envoyee { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .badge-relancee { background: rgba(249,115,22,0.15); color: var(--orange); }
+  .badge-entretien { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .badge-offre { background: rgba(34,197,94,0.15); color: var(--green); }
+  .badge-refus { background: rgba(239,68,68,0.15); color: var(--red); }
+  .badge-ghosted { background: rgba(156,163,175,0.15); color: var(--text2); }
+  .badge-brouillon { background: rgba(234,179,8,0.15); color: var(--yellow); }
+
+  /* RELANCE INDICATOR */
+  .relance-due { color: var(--red); font-weight: 600; }
+  .relance-soon { color: var(--orange); font-weight: 500; }
+  .relance-ok { color: var(--text2); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    width: 560px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h2 { font-size: 1.2rem; margin-bottom: 24px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+  .form-group textarea { min-height: 80px; resize: vertical; }
+  .form-row { display: flex; gap: 16px; }
+  .form-row .form-group { flex: 1; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text2);
+  }
+  .empty-state .emoji { font-size: 3rem; margin-bottom: 16px; }
+  .empty-state p { font-size: 0.9rem; margin-bottom: 20px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--green);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 2000;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ACTIONS CELL */
+  .actions-cell { display: flex; gap: 4px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .header { padding: 16px; }
+    .stats-bar { padding: 16px; }
+    .filters-bar { padding: 0 16px 16px; }
+    .table-container { padding: 0 16px 16px; }
+    .stat-card { min-width: 100px; padding: 12px 16px; }
+    .stat-number { font-size: 1.5rem; }
+  }
+
+  /* TIMELINE inside modal */
+  .timeline { margin-top: 16px; }
+  .timeline-item {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+    border-left: 2px solid var(--border);
+    padding-left: 16px;
+    margin-left: 8px;
+    position: relative;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 14px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .timeline-date { font-size: 0.72rem; color: var(--text2); min-width: 80px; }
+  .timeline-text { font-size: 0.8rem; color: var(--text); }
+
+  select option { background: var(--bg); color: var(--text); }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .tab {
+    padding: 14px 24px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
+  .tab .tab-count {
+    background: var(--bg3);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .tab.active .tab-count { background: rgba(99,102,241,0.2); color: var(--accent2); }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ESN CARDS */
+  .esn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+    padding: 20px 32px;
+  }
+  .esn-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .esn-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .esn-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .esn-card-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .esn-card-header .esn-priority {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .priority-hot { background: rgba(239,68,68,0.15); color: var(--red); }
+  .priority-warm { background: rgba(249,115,22,0.15); color: var(--orange); }
+  .priority-cold { background: rgba(156,163,175,0.15); color: var(--text2); }
+  .priority-new { background: rgba(59,130,246,0.15); color: var(--blue); }
+
+  .esn-contacts {
+    margin: 12px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .esn-contact {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .esn-contact-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .esn-contact-role {
+    font-size: 0.72rem;
+    color: var(--text2);
+  }
+  .esn-contact-channels {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+  .esn-contact-channels a, .esn-contact-channels span {
+    font-size: 0.72rem;
+    color: var(--accent2);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .esn-contact-channels a:hover { text-decoration: underline; }
+
+  .esn-meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .esn-meta-item {
+    font-size: 0.72rem;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .esn-candidatures-count {
+    font-size: 0.72rem;
+    color: var(--accent2);
+    margin-top: 8px;
+  }
+  .esn-notes {
+    font-size: 0.8rem;
+    color: var(--text2);
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  .esn-stats-bar {
+    display: flex;
+    gap: 16px;
+    padding: 20px 32px 0;
+    flex-wrap: wrap;
+  }
+
+  .esn-filters {
+    padding: 16px 32px 0;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  @media (max-width: 768px) {
+    .tabs { padding: 0 16px; }
+    .esn-grid { padding: 16px; grid-template-columns: 1fr; }
+    .esn-stats-bar { padding: 16px 16px 0; }
+    .esn-filters { padding: 12px 16px 0; }
   }
 </style>
 </head>
 <body>
-<div class="container">
-  
-  <!-- Header -->
-  <div class="header">
-    <h1>📋 Job <span>Tracker</span></h1>
-    <p class="subtitle">Suivi de candidatures — Recherche active depuis février 2026</p>
-  </div>
-  
-  <!-- Profil -->
-  <div class="profile">
-    <div class="profile-info">
-      <div class="profile-name">Michael COSYN</div>
-      <div class="profile-title">Technicien Supérieur Systèmes & Réseaux</div>
-      <div class="profile-details">
-        <span>📍 Halluin (59250) — rayon 50km</span>
-        <span>🎓 TSSR — AFCI Arras (2024-2025)</span>
-        <span>💼 +15 ans gestion opérationnelle (Auchan Retail)</span>
-        <span>🔧 Stage Helpdesk — VBTECH</span>
-      </div>
-      <div class="tags">
-        <span class="tag">Helpdesk N1/N2</span>
-        <span class="tag">Support IT</span>
-        <span class="tag">Admin Sys/Réseaux</span>
-        <span class="tag">Windows / AD</span>
-        <span class="tag">GLPI / ITIL</span>
-        <span class="tag">TCP/IP / VPN</span>
-      </div>
-    </div>
-  </div>
 
-  <!-- Stats -->
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-number blue">2</div>
-      <div class="stat-label">Candidatures</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number green">3</div>
-      <div class="stat-label">Canaux utilisés</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number yellow">0</div>
-      <div class="stat-label">Entretiens</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number purple">0</div>
-      <div class="stat-label">Offres reçues</div>
-    </div>
+<div class="header">
+  <h1><span>😈</span> Job Tracker</h1>
+  <div class="header-actions">
+    <button class="btn btn-secondary" onclick="hunterQuota()" title="Voir quota Hunter.io">🔍 Quota</button>
+    <button class="btn btn-secondary" onclick="connectFile()" id="connectBtn">🔗 Connecter fichier</button>
+    <button class="btn btn-secondary" onclick="exportData()">📤 Exporter</button>
+    <button class="btn btn-secondary" onclick="importData()">📥 Importer</button>
+    <button class="btn btn-primary" onclick="openModal()">+ Candidature</button>
   </div>
-
-  <!-- Candidatures -->
-  <h2 class="section-title">🚀 Candidatures</h2>
-
-  <!-- Card 1 -->
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <div class="card-title">Ingénieur Support F/H (#Insertion)</div>
-        <div class="card-company">Inzerty / Groupe Vitamine T</div>
-      </div>
-      <span class="badge badge-sent">✅ Envoyée</span>
-    </div>
-    <div class="card-meta">
-      <span>📍 Lille (59)</span>
-      <span>💰 30 000 – 36 000 €/an</span>
-      <span>📝 CDI</span>
-      <span>📅 21/02/2026</span>
-    </div>
-    <div class="card-channels">
-      <span class="channel">Indeed Apply</span>
-    </div>
-    <details>
-      <summary>Voir les détails ▾</summary>
-      <div class="card-details">
-        <div class="detail-grid">
-          <span class="detail-label">Contact recrutement</span>
-          <span class="detail-value">Odile / Kiara (RH), puis Mélina / Khady</span>
-          <span class="detail-label">Process</span>
-          <span class="detail-value">Appel téléphonique → Entretien → Client final</span>
-          <span class="detail-label">Dispo annoncée</span>
-          <span class="detail-value">Mars 2026</span>
-          <span class="detail-label">Prétentions</span>
-          <span class="detail-value">30 000 € brut/an</span>
-          <span class="detail-label">Microsoft (O365/AD/Azure)</span>
-          <span class="detail-value">Intermédiaire</span>
-          <span class="detail-label">ITIL</span>
-          <span class="detail-value">Intermédiaire</span>
-          <span class="detail-label">Ticketing</span>
-          <span class="detail-value">GLPI, Freshdesk, Jira SM</span>
-          <span class="detail-label">Réseau</span>
-          <span class="detail-value">VPN, Wi-Fi, LAN</span>
-        </div>
-        <div class="detail-note">
-          🏢 <strong>Inzerty</strong> = 1ère ESN d'insertion régionale (Groupe Vitamine T). Accompagnement socio-professionnel inclus. Stack : Windows, O365, AD, Azure, VPN, ITSM (ServiceNow, EasyVista), ITIL. Objectif = CDI durable.
-        </div>
-        <div class="timeline">
-          <div class="timeline-item"><span class="timeline-dot done"></span> Candidature envoyée (Indeed Apply)</div>
-          <div class="timeline-item"><span class="timeline-dot pending"></span> En attente — appel téléphonique</div>
-          <div class="timeline-item"><span class="timeline-dot pending"></span> Entretien RH</div>
-          <div class="timeline-item"><span class="timeline-dot pending"></span> Échange client final</div>
-        </div>
-      </div>
-    </details>
-  </div>
-
-  <!-- Card 2 -->
-  <div class="card doubled">
-    <div class="card-header">
-      <div>
-        <div class="card-title">Technicien Support / Helpdesk</div>
-        <div class="card-company">Helpline</div>
-      </div>
-      <span class="badge badge-doubled">✅ Envoyée x2</span>
-    </div>
-    <div class="card-meta">
-      <span>📍 —</span>
-      <span>📅 21/02/2026</span>
-    </div>
-    <div class="card-channels">
-      <span class="channel">Indeed / France Travail</span>
-      <span class="channel">LinkedIn (doublé + LM)</span>
-    </div>
-    <details>
-      <summary>Voir les détails ▾</summary>
-      <div class="card-details">
-        <div class="detail-grid">
-          <span class="detail-label">Candidature initiale</span>
-          <span class="detail-value">Indeed ou France Travail</span>
-          <span class="detail-label">Doublé via</span>
-          <span class="detail-value">LinkedIn avec LM personnalisée (PDF)</span>
-        </div>
-        <div class="detail-note">
-          🏢 <strong>Helpline</strong> = référence de l'expérience utilisateur en entreprise. +2500 collaborateurs, 23 pays d'intervention, +50% du CAC40 en clients. Candidature renforcée par double canal.
-        </div>
-        <div class="timeline">
-          <div class="timeline-item"><span class="timeline-dot done"></span> Candidature envoyée (Indeed/FT)</div>
-          <div class="timeline-item"><span class="timeline-dot done"></span> Doublé via LinkedIn + LM</div>
-          <div class="timeline-item"><span class="timeline-dot pending"></span> En attente de retour</div>
-        </div>
-      </div>
-    </details>
-  </div>
-
-  <!-- Footer -->
-  <div class="footer">
-    Dernière mise à jour : 21 février 2026 · Propulsé par GitHub Pages
-  </div>
-
 </div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('candidatures', this)">🎯 Candidatures <span class="tab-count" id="tabCountCandidatures">0</span></div>
+  <div class="tab" onclick="switchTab('esn', this)">🏢 Réseau Pro <span class="tab-count" id="tabCountEsn">0</span></div>
+  <div class="tab" onclick="switchTab('contacts', this)">👥 Contacts RH <span class="tab-count" id="tabCountContacts">0</span></div>
+</div>
+
+<!-- SECTION CANDIDATURES -->
+<div class="section active" id="section-candidatures">
+
+<div class="stats-bar" id="stats-bar"></div>
+
+<div class="filters-bar">
+  <input type="text" class="search-input" id="searchInput" placeholder="🔍 Rechercher entreprise, poste, contact..." oninput="renderTable()">
+  <button class="filter-btn active" data-filter="all" onclick="setFilter('all', this)">Tout</button>
+  <button class="filter-btn" data-filter="envoyee" onclick="setFilter('envoyee', this)">📨 Envoyées</button>
+  <button class="filter-btn" data-filter="relancee" onclick="setFilter('relancee', this)">🔄 Relancées</button>
+  <button class="filter-btn" data-filter="entretien" onclick="setFilter('entretien', this)">📞 Entretiens</button>
+  <button class="filter-btn" data-filter="offre" onclick="setFilter('offre', this)">✅ Offres</button>
+  <button class="filter-btn" data-filter="refus" onclick="setFilter('refus', this)">❌ Refus</button>
+  <button class="filter-btn" data-filter="ghosted" onclick="setFilter('ghosted', this)">👻 Ghosted</button>
+  <button class="filter-btn" data-filter="relance-due" onclick="setFilter('relance-due', this)">🔴 Relance à faire</button>
+</div>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th onclick="sortBy('date')">Date ↕</th>
+        <th onclick="sortBy('entreprise')">Entreprise ↕</th>
+        <th onclick="sortBy('poste')">Poste ↕</th>
+        <th onclick="sortBy('contact')">Contact</th>
+        <th onclick="sortBy('source')">Source</th>
+        <th onclick="sortBy('statut')">Statut</th>
+        <th onclick="sortBy('relanceDate')">Relance</th>
+        <th>Notes</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <div class="emoji">🎯</div>
+    <p>Aucune candidature pour l'instant.<br>Clique sur <strong>+ Candidature</strong> pour commencer.</p>
+  </div>
+</div>
+
+</div><!-- /section-candidatures -->
+
+<!-- SECTION ESN -->
+<div class="section" id="section-esn">
+  <div class="esn-stats-bar" id="esn-stats-bar"></div>
+  <div class="esn-filters">
+    <input type="text" class="search-input" id="esnSearchInput" placeholder="🔍 Rechercher ESN, contact, ville..." oninput="renderEsnGrid()">
+    <button class="filter-btn active" data-esn-filter="all" onclick="setEsnFilter('all', this)">Tous</button>
+    <button class="filter-btn" data-esn-filter="type-esn" onclick="setEsnFilter('type-esn', this)">🏢 ESN</button>
+    <button class="filter-btn" data-esn-filter="type-cabinet" onclick="setEsnFilter('type-cabinet', this)">🎯 Cabinets</button>
+    <button class="filter-btn" data-esn-filter="type-interim" onclick="setEsnFilter('type-interim', this)">⏳ Intérim IT</button>
+    <span style="color:var(--border)">│</span>
+    <button class="filter-btn" data-esn-filter="hot" onclick="setEsnFilter('hot', this)">🔴 Hot</button>
+    <button class="filter-btn" data-esn-filter="warm" onclick="setEsnFilter('warm', this)">🟠 Warm</button>
+    <button class="filter-btn" data-esn-filter="new" onclick="setEsnFilter('new', this)">🔵 Nouveau</button>
+    <button class="filter-btn" data-esn-filter="cold" onclick="setEsnFilter('cold', this)">⚪ Cold</button>
+    <div style="flex:1"></div>
+    <button class="btn btn-primary" onclick="openEsnModal()">+ Ajouter</button>
+  </div>
+  <div class="esn-grid" id="esnGrid"></div>
+  <div class="empty-state" id="esnEmptyState" style="display:none;">
+    <div class="emoji">🏢</div>
+    <p>Aucune entrée.<br>Clique sur <strong>+ Ajouter</strong> pour référencer une ESN ou un cabinet.</p>
+  </div>
+</div>
+
+<!-- SECTION CONTACTS RH -->
+<div class="section" id="section-contacts">
+  <div class="esn-stats-bar" id="contacts-stats-bar"></div>
+  <div class="esn-filters">
+    <input type="text" class="search-input" id="contactsSearchInput" placeholder="🔍 Rechercher contact, entreprise, rôle..." oninput="renderContactsGrid()">
+    <button class="filter-btn active" data-contacts-filter="all" onclick="setContactsFilter('all', this)">Tous</button>
+    <button class="filter-btn" data-contacts-filter="status-a-contacter" onclick="setContactsFilter('status-a-contacter', this)">📧 À contacter</button>
+    <button class="filter-btn" data-contacts-filter="status-contacte" onclick="setContactsFilter('status-contacte', this)">✅ Contacté</button>
+    <button class="filter-btn" data-contacts-filter="status-rdv" onclick="setContactsFilter('status-rdv', this)">📅 RDV programmé</button>
+    <button class="filter-btn" data-contacts-filter="status-suivi" onclick="setContactsFilter('status-suivi', this)">🔄 En suivi</button>
+    <button class="filter-btn" data-contacts-filter="status-dead" onclick="setContactsFilter('status-dead', this)">💀 Dead</button>
+    <span style="color:var(--border)">│</span>
+    <button class="filter-btn" data-contacts-filter="priorite-urgent" onclick="setContactsFilter('priorite-urgent', this)">🔴 Urgent</button>
+    <button class="filter-btn" data-contacts-filter="priorite-important" onclick="setContactsFilter('priorite-important', this)">🟠 Important</button>
+    <button class="filter-btn" data-contacts-filter="priorite-normal" onclick="setContactsFilter('priorite-normal', this)">🟡 Normal</button>
+    <div style="flex:1"></div>
+    <button class="btn btn-primary" onclick="openContactModal()">+ Ajouter Contact</button>
+  </div>
+  <div class="esn-grid" id="contactsGrid"></div>
+  <div class="empty-state" id="contactsEmptyState" style="display:none;">
+    <div class="emoji">👥</div>
+    <p>Aucun contact RH.<br>Clique sur <strong>+ Ajouter Contact</strong> pour commencer à constituer ton réseau.</p>
+  </div>
+</div>
+
+<!-- MODAL ESN -->
+<div class="modal-overlay" id="esnModal">
+  <div class="modal">
+    <h2 id="esnModalTitle">Nouvelle ESN</h2>
+    <input type="hidden" id="esnEditId">
+
+    <div class="form-group">
+      <label>Nom *</label>
+      <input type="text" id="esnNom" placeholder="Ex: Helpline, Michael Page, Randstad Digital...">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Type</label>
+        <select id="esnType">
+          <option value="esn">🏢 ESN / SSII</option>
+          <option value="cabinet">🎯 Cabinet de recrutement</option>
+          <option value="interim">⏳ Intérim IT</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Priorité</label>
+        <select id="esnPriorite">
+          <option value="new">🔵 Nouveau</option>
+          <option value="hot">🔴 Hot — contact direct identifié</option>
+          <option value="warm">🟠 Warm — en cours d'approche</option>
+          <option value="cold">⚪ Cold — juste repérée</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Site web</label>
+        <input type="url" id="esnSite" placeholder="https://...">
+      </div>
+      <div class="form-group">
+        <label>Page recrutement / Carrières</label>
+        <input type="url" id="esnCarrieres" placeholder="https://...careers...">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Ville(s) / Agence</label>
+        <input type="text" id="esnVille" placeholder="Ex: Lille, Marcq-en-Barœul...">
+      </div>
+      <div class="form-group">
+        <label>Spécialités</label>
+        <input type="text" id="esnSpecialites" placeholder="Ex: Infogérance, Support, Cloud...">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>LinkedIn page entreprise</label>
+      <input type="url" id="esnLinkedin" placeholder="https://linkedin.com/company/...">
+    </div>
+
+    <!-- CONTACTS -->
+    <div style="margin-top:20px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+      <label style="font-size:0.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;">Contacts recrutement</label>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-small btn-secondary" onclick="const id=document.getElementById('esnEditId').value; if(id) hunterSearch(id);" title="Chercher via Hunter.io">🔍 Hunter</button>
+        <button class="btn btn-small btn-secondary" onclick="addContactField()">+ Contact</button>
+      </div>
+    </div>
+    <div id="esnContactsList"></div>
+
+    <div class="form-group" style="margin-top:16px">
+      <label>Notes / Stratégie d'approche</label>
+      <textarea id="esnNotes" placeholder="Comment les approcher, quand relancer, infos utiles..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeEsnModal()">Annuler</button>
+      <button class="btn btn-danger btn-small" id="esnDeleteBtn" onclick="deleteEsn()" style="display:none;">🗑️ Supprimer</button>
+      <button class="btn btn-primary" onclick="saveEsn()">💾 Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONTACT RH -->
+<div class="modal-overlay" id="contactModal">
+  <div class="modal" style="max-width: 700px;">
+    <h2 id="contactModalTitle">Nouveau Contact RH</h2>
+    <input type="hidden" id="contactEditId">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nom du contact *</label>
+        <input type="text" id="contactNom" placeholder="Ex: Isabelle Néri, Bruno Vincent...">
+      </div>
+      <div class="form-group">
+        <label>Poste / Rôle</label>
+        <input type="text" id="contactRole" placeholder="Ex: IT Recruiter, CEO, HR Business Partner...">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Entreprise *</label>
+        <input type="text" id="contactEntreprise" placeholder="Ex: HELPLINE, OVHcloud, Econocom...">
+      </div>
+      <div class="form-group">
+        <label>Ville</label>
+        <input type="text" id="contactVille" placeholder="Ex: Lille, Marcq-en-Barœul...">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="contactEmail" placeholder="prenom.nom@entreprise.com">
+      </div>
+      <div class="form-group">
+        <label>Téléphone</label>
+        <input type="tel" id="contactTelephone" placeholder="+33 X XX XX XX XX">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>LinkedIn du contact</label>
+      <input type="url" id="contactLinkedin" placeholder="https://linkedin.com/in/...">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Statut</label>
+        <select id="contactStatut">
+          <option value="a-contacter">📧 À contacter</option>
+          <option value="contacte">✅ Contacté</option>
+          <option value="rdv">📅 RDV programmé</option>
+          <option value="suivi">🔄 En suivi</option>
+          <option value="dead">💀 Dead</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Priorité</label>
+        <select id="contactPriorite">
+          <option value="urgent">🔴 Urgent — répondu ou contact direct</option>
+          <option value="important">🟠 Important — bonne cible identifiée</option>
+          <option value="normal">🟡 Normal — prospect standard</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Source de découverte</label>
+      <input type="text" id="contactSource" placeholder="Ex: Hunter.io, LinkedIn, recommandation...">
+    </div>
+
+    <div class="form-group">
+      <label>Notes / Contexte</label>
+      <textarea id="contactNotes" placeholder="Comment tu l'as trouvé, ce qu'il faut retenir, stratégie d'approche..."></textarea>
+    </div>
+
+    <!-- OBJECTIFS -->
+    <div style="margin-top:20px; margin-bottom:12px;">
+      <label style="font-size:0.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;">🎯 Objectifs & Actions</label>
+    </div>
+    <div id="objectifsList"></div>
+    <button class="btn btn-small btn-secondary" onclick="addObjectifField()" style="margin-bottom: 16px;">+ Ajouter objectif</button>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeContactModal()">Annuler</button>
+      <button class="btn btn-danger btn-small" id="contactDeleteBtn" onclick="deleteContact()" style="display:none;">🗑️ Supprimer</button>
+      <button class="btn btn-primary" onclick="saveContact()">💾 Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ADD/EDIT -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modalTitle">Nouvelle candidature</h2>
+    <input type="hidden" id="editId">
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>Entreprise *</label>
+        <input type="text" id="fEntreprise" placeholder="Ex: OVH, Decathlon IT..." required>
+      </div>
+      <div class="form-group">
+        <label>Poste *</label>
+        <input type="text" id="fPoste" placeholder="Ex: Technicien Helpdesk N2">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Contact / Recruteur</label>
+        <input type="text" id="fContact" placeholder="Nom, email, tel...">
+      </div>
+      <div class="form-group">
+        <label>Source</label>
+        <select id="fSource">
+          <option value="Indeed">Indeed</option>
+          <option value="LinkedIn">LinkedIn</option>
+          <option value="HelloWork">HelloWork</option>
+          <option value="France Travail">France Travail</option>
+          <option value="Site entreprise">Site entreprise</option>
+          <option value="Cooptation">Cooptation</option>
+          <option value="Autre">Autre</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date candidature</label>
+        <input type="date" id="fDate">
+      </div>
+      <div class="form-group">
+        <label>Statut</label>
+        <select id="fStatut">
+          <option value="brouillon">📝 Brouillon</option>
+          <option value="envoyee">📨 Envoyée</option>
+          <option value="relancee">🔄 Relancée</option>
+          <option value="entretien">📞 Entretien</option>
+          <option value="offre">✅ Offre</option>
+          <option value="refus">❌ Refus</option>
+          <option value="ghosted">👻 Ghosted</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date relance prévue</label>
+        <input type="date" id="fRelanceDate">
+      </div>
+      <div class="form-group">
+        <label>Lieu / Ville</label>
+        <input type="text" id="fLieu" placeholder="Ex: Lille, Remote...">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Lien offre</label>
+      <input type="url" id="fUrl" placeholder="https://...">
+    </div>
+
+    <div class="form-group">
+      <label>Salaire proposé</label>
+      <input type="text" id="fSalaire" placeholder="Ex: 25-30K, SMIC+, à négocier...">
+    </div>
+
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="fNotes" placeholder="Détails, impressions, retours..."></textarea>
+    </div>
+
+    <div id="timelineContainer"></div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-danger btn-small" id="deleteBtn" onclick="deleteEntry()" style="display:none;">🗑️ Supprimer</button>
+      <button class="btn btn-primary" onclick="saveEntry()">💾 Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// DATA — persistent via File System Access API (data.json)
+let data = [];
+let fileHandle = null;
+let currentFilter = 'all';
+let currentSort = { field: 'date', dir: 'desc' };
+
+// Save to file + localStorage backup
+async function save() {
+  localStorage.setItem('jobtracker', JSON.stringify(data));
+  if (fileHandle) {
+    try {
+      const writable = await fileHandle.createWritable();
+      await writable.write(JSON.stringify(data, null, 2));
+      await writable.close();
+    } catch(e) { console.warn('File save failed, localStorage OK:', e); }
+  }
+  renderStats();
+  renderTable();
+}
+
+// Load from data.json (same directory as tracker.html)
+async function initData() {
+  // Try loading data.json from same folder
+  try {
+    const resp = await fetch('data.json');
+    if (resp.ok) {
+      const fileData = JSON.parse(await resp.text());
+      if (Array.isArray(fileData) && fileData.length > 0) {
+        data = fileData;
+        // Also sync to localStorage
+        localStorage.setItem('jobtracker', JSON.stringify(data));
+        renderStats();
+        renderTable();
+        toast('📂 Données chargées depuis data.json');
+        return;
+      }
+    }
+  } catch(e) { console.log('No data.json fetch, trying localStorage'); }
+
+  // Force reload from SEED_DATA to apply updates
+  data = SEED_DATA;
+  save();
+  renderStats();
+  renderTable();
+}
+
+// Connect to file for persistent writes
+async function connectFile() {
+  if (!window.showOpenFilePicker) {
+    toast('⚠️ File System API non supportée — utilise Chrome/Edge', 'var(--orange)');
+    return;
+  }
+  try {
+    const [handle] = await window.showOpenFilePicker({
+      types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }],
+      startIn: 'documents'
+    });
+    fileHandle = handle;
+    // Store handle for session persistence
+    if ('indexedDB' in window) {
+      const db = await openHandleDB();
+      const tx = db.transaction('handles', 'readwrite');
+      tx.objectStore('handles').put(handle, 'jobtracker');
+      await tx.done;
+    }
+    // Read from connected file
+    const file = await handle.getFile();
+    const content = JSON.parse(await file.text());
+    if (Array.isArray(content)) {
+      data = content;
+      localStorage.setItem('jobtracker', JSON.stringify(data));
+      renderStats();
+      renderTable();
+    }
+    toast('✅ Fichier connecté — sauvegarde auto activée');
+  } catch(e) {
+    if (e.name !== 'AbortError') toast('❌ Erreur connexion fichier', 'var(--red)');
+  }
+}
+
+// Restore file handle from IndexedDB on page load
+async function restoreFileHandle() {
+  if (!('indexedDB' in window)) return;
+  try {
+    const db = await openHandleDB();
+    const tx = db.transaction('handles', 'readonly');
+    const handle = await tx.objectStore('handles').get('jobtracker');
+    if (handle) {
+      const perm = await handle.queryPermission({ mode: 'readwrite' });
+      if (perm === 'granted') {
+        fileHandle = handle;
+        // Read latest from file
+        const file = await handle.getFile();
+        const content = JSON.parse(await file.text());
+        if (Array.isArray(content) && content.length > 0) {
+          data = content;
+          localStorage.setItem('jobtracker', JSON.stringify(data));
+          renderStats();
+          renderTable();
+        }
+        toast('📂 Fichier reconnecté automatiquement');
+      } else {
+        // Need to re-request permission
+        const req = await handle.requestPermission({ mode: 'readwrite' });
+        if (req === 'granted') {
+          fileHandle = handle;
+          toast('📂 Fichier reconnecté');
+        }
+      }
+    }
+  } catch(e) { console.log('No stored file handle'); }
+}
+
+function openHandleDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('JobTrackerHandles', 1);
+    req.onupgradeneeded = () => req.result.createObjectStore('handles');
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+// STATS
+function renderStats() {
+  const total = data.length;
+  const counts = { envoyee: 0, relancee: 0, entretien: 0, offre: 0, refus: 0, ghosted: 0, brouillon: 0 };
+  const relanceDue = data.filter(d => isRelanceDue(d)).length;
+  
+  data.forEach(d => { if (counts[d.statut] !== undefined) counts[d.statut]++; });
+
+  const active = total - counts.refus - counts.ghosted;
+  const tauxReponse = total > 0 ? Math.round(((counts.entretien + counts.offre + counts.refus) / total) * 100) : 0;
+
+  document.getElementById('stats-bar').innerHTML = `
+    <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total</div></div>
+    <div class="stat-card"><div class="stat-number" style="color:var(--blue)">${counts.envoyee}</div><div class="stat-label">En attente</div></div>
+    <div class="stat-card"><div class="stat-number" style="color:var(--orange)">${counts.relancee}</div><div class="stat-label">Relancées</div></div>
+    <div class="stat-card"><div class="stat-number" style="color:var(--purple)">${counts.entretien}</div><div class="stat-label">Entretiens</div></div>
+    <div class="stat-card"><div class="stat-number" style="color:var(--green)">${counts.offre}</div><div class="stat-label">Offres</div></div>
+    <div class="stat-card"><div class="stat-number" style="color:var(--red)">${relanceDue}</div><div class="stat-label">🔴 Relances</div></div>
+    <div class="stat-card"><div class="stat-number" style="color:var(--yellow)">${tauxReponse}%</div><div class="stat-label">Taux réponse</div></div>
+  `;
+  if (typeof updateTabCounts === 'function') updateTabCounts();
+}
+
+function isRelanceDue(entry) {
+  if (!entry.relanceDate || entry.statut === 'offre' || entry.statut === 'refus' || entry.statut === 'ghosted') return false;
+  return new Date(entry.relanceDate) <= new Date();
+}
+
+function isRelanceSoon(entry) {
+  if (!entry.relanceDate || entry.statut === 'offre' || entry.statut === 'refus' || entry.statut === 'ghosted') return false;
+  const diff = (new Date(entry.relanceDate) - new Date()) / (1000*60*60*24);
+  return diff > 0 && diff <= 3;
+}
+
+// TABLE
+function renderTable() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  let filtered = data.filter(d => {
+    if (currentFilter === 'relance-due') return isRelanceDue(d);
+    if (currentFilter !== 'all' && d.statut !== currentFilter) return false;
+    if (query) {
+      const hay = `${d.entreprise} ${d.poste} ${d.contact} ${d.lieu} ${d.notes} ${d.source}`.toLowerCase();
+      if (!hay.includes(query)) return false;
+    }
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    let va = a[currentSort.field] || '', vb = b[currentSort.field] || '';
+    if (currentSort.field === 'date' || currentSort.field === 'relanceDate') {
+      va = va || '0000'; vb = vb || '0000';
+    }
+    const cmp = va < vb ? -1 : va > vb ? 1 : 0;
+    return currentSort.dir === 'asc' ? cmp : -cmp;
+  });
+
+  const tbody = document.getElementById('tableBody');
+  const empty = document.getElementById('emptyState');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = filtered.map(d => {
+    const badgeClass = `badge-${d.statut}`;
+    const statutLabels = { brouillon:'📝 Brouillon', envoyee:'📨 Envoyée', relancee:'🔄 Relancée', entretien:'📞 Entretien', offre:'✅ Offre', refus:'❌ Refus', ghosted:'👻 Ghosted' };
+    
+    let relanceHtml = '—';
+    if (d.relanceDate) {
+      const cls = isRelanceDue(d) ? 'relance-due' : isRelanceSoon(d) ? 'relance-soon' : 'relance-ok';
+      const label = isRelanceDue(d) ? '🔴 ' : isRelanceSoon(d) ? '🟡 ' : '';
+      relanceHtml = `<span class="${cls}">${label}${formatDate(d.relanceDate)}</span>`;
+    }
+
+    return `<tr ondblclick="openModal('${d.id}')">
+      <td>${formatDate(d.date)}</td>
+      <td><strong>${esc(d.entreprise)}</strong>${d.lieu ? `<br><span style="color:var(--text2);font-size:0.75rem">📍 ${esc(d.lieu)}</span>` : ''}</td>
+      <td>${esc(d.poste)}${d.url ? ` <a href="${esc(d.url)}" target="_blank" style="color:var(--accent)">🔗</a>` : ''}</td>
+      <td>${esc(d.contact) || '<span style="color:var(--text2)">—</span>'}</td>
+      <td>${esc(d.source)}</td>
+      <td><span class="badge ${badgeClass}">${statutLabels[d.statut] || d.statut}</span></td>
+      <td>${relanceHtml}</td>
+      <td title="${esc(d.notes)}">${esc(truncate(d.notes, 40))}</td>
+      <td class="actions-cell">
+        <button class="btn btn-icon btn-small btn-secondary" onclick="openModal('${d.id}')" title="Modifier">✏️</button>
+        <button class="btn btn-icon btn-small btn-secondary" onclick="quickRelance('${d.id}')" title="Marquer relancé">🔄</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function formatDate(d) { if (!d) return '—'; const p = d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
+function truncate(s, n) { if (!s) return ''; return s.length > n ? s.substring(0,n) + '...' : s; }
+function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// SORT
+function sortBy(field) {
+  if (currentSort.field === field) currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+  else { currentSort.field = field; currentSort.dir = 'desc'; }
+  renderTable();
+}
+
+// FILTER
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+// MODAL
+function openModal(id) {
+  const modal = document.getElementById('modal');
+  const isEdit = !!id;
+  document.getElementById('modalTitle').textContent = isEdit ? 'Modifier la candidature' : 'Nouvelle candidature';
+  document.getElementById('deleteBtn').style.display = isEdit ? 'inline-flex' : 'none';
+
+  if (isEdit) {
+    const entry = data.find(d => d.id === id);
+    if (!entry) return;
+    document.getElementById('editId').value = id;
+    document.getElementById('fEntreprise').value = entry.entreprise || '';
+    document.getElementById('fPoste').value = entry.poste || '';
+    document.getElementById('fContact').value = entry.contact || '';
+    document.getElementById('fSource').value = entry.source || 'Indeed';
+    document.getElementById('fDate').value = entry.date || '';
+    document.getElementById('fStatut').value = entry.statut || 'envoyee';
+    document.getElementById('fRelanceDate').value = entry.relanceDate || '';
+    document.getElementById('fLieu').value = entry.lieu || '';
+    document.getElementById('fUrl').value = entry.url || '';
+    document.getElementById('fSalaire').value = entry.salaire || '';
+    document.getElementById('fNotes').value = entry.notes || '';
+    // Timeline
+    renderTimeline(entry);
+  } else {
+    document.getElementById('editId').value = '';
+    document.getElementById('fEntreprise').value = '';
+    document.getElementById('fPoste').value = '';
+    document.getElementById('fContact').value = '';
+    document.getElementById('fSource').value = 'Indeed';
+    document.getElementById('fDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('fStatut').value = 'envoyee';
+    document.getElementById('fRelanceDate').value = getDefaultRelance();
+    document.getElementById('fLieu').value = '';
+    document.getElementById('fUrl').value = '';
+    document.getElementById('fSalaire').value = '';
+    document.getElementById('fNotes').value = '';
+    document.getElementById('timelineContainer').innerHTML = '';
+  }
+
+  modal.classList.add('active');
+  document.getElementById('fEntreprise').focus();
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
+function getDefaultRelance() {
+  const d = new Date();
+  d.setDate(d.getDate() + 7);
+  return d.toISOString().split('T')[0];
+}
+
+function renderTimeline(entry) {
+  if (!entry.history || entry.history.length === 0) {
+    document.getElementById('timelineContainer').innerHTML = '';
+    return;
+  }
+  const html = `<div style="margin-top:20px"><label style="font-size:0.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;">Historique</label><div class="timeline">${
+    entry.history.map(h => `<div class="timeline-item"><span class="timeline-date">${formatDate(h.date)}</span><span class="timeline-text">${esc(h.action)}</span></div>`).join('')
+  }</div></div>`;
+  document.getElementById('timelineContainer').innerHTML = html;
+}
+
+// SAVE
+function saveEntry() {
+  const entreprise = document.getElementById('fEntreprise').value.trim();
+  const poste = document.getElementById('fPoste').value.trim();
+  if (!entreprise || !poste) { toast('⚠️ Entreprise et poste sont requis', 'var(--orange)'); return; }
+
+  const id = document.getElementById('editId').value;
+  const newStatut = document.getElementById('fStatut').value;
+  
+  const entry = {
+    id: id || crypto.randomUUID(),
+    entreprise,
+    poste,
+    contact: document.getElementById('fContact').value.trim(),
+    source: document.getElementById('fSource').value,
+    date: document.getElementById('fDate').value,
+    statut: newStatut,
+    relanceDate: document.getElementById('fRelanceDate').value,
+    lieu: document.getElementById('fLieu').value.trim(),
+    url: document.getElementById('fUrl').value.trim(),
+    salaire: document.getElementById('fSalaire').value.trim(),
+    notes: document.getElementById('fNotes').value.trim(),
+    history: [],
+    updatedAt: new Date().toISOString()
+  };
+
+  if (id) {
+    const idx = data.findIndex(d => d.id === id);
+    if (idx !== -1) {
+      const old = data[idx];
+      entry.history = old.history || [];
+      entry.createdAt = old.createdAt;
+      if (old.statut !== newStatut) {
+        entry.history.push({ date: new Date().toISOString().split('T')[0], action: `Statut: ${old.statut} → ${newStatut}` });
+      }
+      data[idx] = entry;
+    }
+  } else {
+    entry.createdAt = new Date().toISOString();
+    entry.history = [{ date: entry.date, action: 'Candidature créée' }];
+    data.push(entry);
+  }
+
+  save();
+  closeModal();
+  toast(id ? '✏️ Candidature mise à jour' : '✅ Candidature ajoutée');
+}
+
+// DELETE
+function deleteEntry() {
+  const id = document.getElementById('editId').value;
+  if (!id || !confirm('Supprimer cette candidature ?')) return;
+  data = data.filter(d => d.id !== id);
+  save();
+  closeModal();
+  toast('🗑️ Candidature supprimée', 'var(--red)');
+}
+
+// QUICK RELANCE
+function quickRelance(id) {
+  const entry = data.find(d => d.id === id);
+  if (!entry) return;
+  entry.statut = 'relancee';
+  const today = new Date().toISOString().split('T')[0];
+  entry.history = entry.history || [];
+  entry.history.push({ date: today, action: 'Relance effectuée' });
+  const next = new Date(); next.setDate(next.getDate() + 7);
+  entry.relanceDate = next.toISOString().split('T')[0];
+  entry.updatedAt = new Date().toISOString();
+  save();
+  toast('🔄 Relance enregistrée');
+}
+
+// EXPORT / IMPORT
+function exportData() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `job-tracker-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📤 Données exportées');
+}
+
+function importData() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const imported = JSON.parse(ev.target.result);
+        if (!Array.isArray(imported)) throw new Error('Format invalide');
+        if (confirm(`Importer ${imported.length} candidatures ? (les données actuelles seront remplacées)`)) {
+          data = imported;
+          save();
+          toast(`📥 ${imported.length} candidatures importées`);
+        }
+      } catch(err) { toast('❌ Fichier invalide', 'var(--red)'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// TOAST
+function toast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color || 'var(--green)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// KEYBOARD
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { closeModal(); closeEsnModal(); }
+  if (e.key === 'n' && !e.ctrlKey && !e.metaKey && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA' && document.activeElement.tagName !== 'SELECT') {
+    e.preventDefault();
+    const esnActive = document.getElementById('section-esn').classList.contains('active');
+    esnActive ? openEsnModal() : openModal();
+  }
+});
+
+// ========== TAB SWITCHING ==========
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`section-${tab}`).classList.add('active');
+  if (tab === 'esn') renderEsnGrid();
+}
+
+// ========== ESN DATA ==========
+let esnData = JSON.parse(localStorage.getItem('esn-directory') || '[]');
+let esnFilter = 'all';
+
+async function saveEsnData() {
+  localStorage.setItem('esn-directory', JSON.stringify(esnData));
+  if (fileHandle) {
+    // Save ESN alongside candidatures in a combined export? No — separate file
+    // ESN uses its own localStorage key, we'll also try esn-data.json
+  }
+  updateTabCounts();
+  renderEsnStats();
+  renderEsnGrid();
+}
+
+// ========== HUNTER.IO ==========
+const HUNTER_API_KEY = '8e779883f7c8b58e8dc8611021c530a81e641532';
+
+async function hunterSearch(esnId) {
+  const entry = esnData.find(e => e.id === esnId);
+  if (!entry) return;
+
+  // Extract domain from site URL
+  let domain = '';
+  if (entry.site) {
+    try { domain = new URL(entry.site).hostname.replace('www.', ''); } catch(e) {}
+  }
+  if (!domain) {
+    // Prompt user for domain
+    domain = prompt(`Pas de site web renseigné pour ${entry.nom}.\nEntre le domaine (ex: helpline.fr) :`);
+    if (!domain) return;
+    domain = domain.replace(/^https?:\/\//, '').replace('www.', '').replace(/\/.*/, '');
+  }
+
+  toast(`🔍 Recherche Hunter.io sur ${domain}...`);
+
+  try {
+    const resp = await fetch(`https://api.hunter.io/v2/domain-search?domain=${encodeURIComponent(domain)}&api_key=${HUNTER_API_KEY}&limit=20`);
+    const json = await resp.json();
+
+    if (json.errors) {
+      toast(`❌ Hunter: ${json.errors[0].details || json.errors[0].message}`, 'var(--red)');
+      return;
+    }
+
+    const emails = json.data?.emails || [];
+    if (emails.length === 0) {
+      toast(`⚠️ Aucun contact trouvé pour ${domain}`, 'var(--orange)');
+      return;
+    }
+
+    // Filter for relevant roles (RH, recrutement, talent, HR)
+    const rhKeywords = ['recru', 'talent', 'rh', 'hr', 'human', 'people', 'staffing', 'hiring'];
+    const allContacts = emails.map(e => ({
+      nom: [e.first_name, e.last_name].filter(Boolean).join(' ') || '',
+      role: e.position || '',
+      email: e.value || '',
+      telephone: e.phone_number || '',
+      linkedin: e.linkedin || '',
+      confidence: e.confidence || 0,
+      isRH: rhKeywords.some(k => (e.position || '').toLowerCase().includes(k) || (e.department || '').toLowerCase().includes(k))
+    }));
+
+    // Sort: RH first, then by confidence
+    allContacts.sort((a, b) => {
+      if (a.isRH && !b.isRH) return -1;
+      if (!a.isRH && b.isRH) return 1;
+      return b.confidence - a.confidence;
+    });
+
+    // Merge with existing contacts (don't duplicate emails)
+    entry.contacts = entry.contacts || [];
+    const existingEmails = new Set(entry.contacts.map(c => c.email.toLowerCase()));
+    let added = 0;
+
+    for (const c of allContacts) {
+      if (c.email && !existingEmails.has(c.email.toLowerCase())) {
+        entry.contacts.push({
+          nom: c.nom,
+          role: c.role + (c.isRH ? ' ⭐' : ''),
+          email: c.email,
+          telephone: c.telephone,
+          linkedin: c.linkedin
+        });
+        existingEmails.add(c.email.toLowerCase());
+        added++;
+      }
+    }
+
+    // Update site domain if not set
+    if (!entry.site) entry.site = `https://${domain}`;
+    
+    // Store pattern info
+    const pattern = json.data?.pattern;
+    if (pattern) {
+      entry.emailPattern = pattern;
+      entry.notes = (entry.notes || '') + `\n📧 Pattern email: ${pattern}@${domain}`;
+    }
+
+    entry.updatedAt = new Date().toISOString();
+    saveEsnData();
+
+    toast(`✅ Hunter: ${added} contact(s) ajouté(s) pour ${entry.nom} (${emails.length} trouvés)`);
+
+    // If modal is open on this entry, refresh it
+    if (document.getElementById('esnEditId').value === esnId) {
+      openEsnModal(esnId);
+    }
+
+  } catch(e) {
+    toast(`❌ Erreur Hunter: ${e.message}`, 'var(--red)');
+  }
+}
+
+// Hunter quota check
+async function hunterQuota() {
+  try {
+    const resp = await fetch(`https://api.hunter.io/v2/account?api_key=${HUNTER_API_KEY}`);
+    const json = await resp.json();
+    const d = json.data;
+    if (d) {
+      const used = d.requests?.searches?.used || 0;
+      const avail = d.requests?.searches?.available || 0;
+      toast(`📊 Hunter.io: ${used}/${avail} recherches utilisées ce mois`, 'var(--accent)');
+    }
+  } catch(e) {}
+}
+
+const ESN_SEED_DATA = [
+  {"id":"esn-helpline","nom":"HELPLINE","type":"esn","priorite":"new","site":"https://www.helpline.fr","carrieres":"https://www.helpline.fr/nous-rejoindre","ville":"Marcq-en-Barœul (59)","specialites":"Support applicatif, Infogérance, Proximité","linkedin":"https://www.linkedin.com/company/helpline/","contacts":[],"notes":"ESN spécialisée support/infogérance. Candidature envoyée pour poste Support Retail.","candidatureIds":["hw-helpline-retail"]},
+  {"id":"esn-osmozium","nom":"OSMOZIUM","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Support N1, Infogérance retail","linkedin":"","contacts":[],"notes":"ESN. Support N1 réseau magasins + siège. 7j/7 roulement.","candidatureIds":["hw-osmozium"]},
+  {"id":"esn-securinfor","nom":"Securinfor","type":"esn","priorite":"new","site":"https://www.securinfor.com","carrieres":"","ville":"Wasquehal (59)","specialites":"Support proximité, Infogérance","linkedin":"","contacts":[],"notes":"ESN. Support proximité N1/N2, gestion parc, ticketing.","candidatureIds":["hw-securinfor"]},
+  {"id":"esn-astek","nom":"Astek / Tekneum","type":"esn","priorite":"new","site":"https://www.astek.fr","carrieres":"https://www.astek.fr/offres","ville":"Lille (59)","specialites":"Support N1/N2, Proximité, VIP, Infrastructure","linkedin":"https://www.linkedin.com/company/astek/","contacts":[],"notes":"Grand groupe ESN. Deux candidatures.","candidatureIds":["hw-astek","linkedin-tekneum-astek"]},
+  {"id":"esn-econocom","nom":"Econocom","type":"esn","priorite":"new","site":"https://www.econocom.com","carrieres":"https://www.econocom.com/fr/carrieres","ville":"Lille (59)","specialites":"Support utilisateurs, Digital workplace","linkedin":"https://www.linkedin.com/company/econocom/","contacts":[],"notes":"Grand groupe.","candidatureIds":["hw-econocom"]},
+  {"id":"esn-draks","nom":"Draks","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Support utilisateurs","linkedin":"","contacts":[],"notes":"ESN.","candidatureIds":["hw-draks"]},
+  {"id":"esn-actual-talent","nom":"Actual Talent (ex Up Skills)","type":"interim","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Helpdesk, Support proximité","linkedin":"","contacts":[],"notes":"Intérim/recrutement IT.","candidatureIds":["hw-actual-talent","hw-actual-talent-proxi"]},
+  {"id":"esn-reproit","nom":"REPRO-IT (Groupe IT & You)","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Helpdesk, VoIP, Support N1/N2","linkedin":"","contacts":[],"notes":"ESN groupe IT & You.","candidatureIds":["hw-reproit"]},
+  {"id":"cab-michael-page","nom":"Michael Page","type":"cabinet","priorite":"new","site":"https://www.michaelpage.fr","carrieres":"https://www.michaelpage.fr/emploi/informatique","ville":"Lille (59)","specialites":"Recrutement IT, Support, Infra, Dev","linkedin":"https://www.linkedin.com/company/michael-page/","contacts":[],"notes":"Division Technology. Chercher consultants IT/Support LinkedIn Lille.","candidatureIds":[]},
+  {"id":"cab-hays","nom":"Hays","type":"cabinet","priorite":"new","site":"https://www.hays.fr","carrieres":"https://www.hays.fr/emploi/informatique-telecoms","ville":"Lille (59)","specialites":"Recrutement IT, Support, Infra, Systèmes & Réseaux","linkedin":"https://www.linkedin.com/company/hays/","contacts":[],"notes":"Gros cabinet international. Division IT Lille. Beaucoup d'offres Support/Helpdesk Nord.","candidatureIds":[]},
+  {"id":"cab-robert-half","nom":"Robert Half","type":"cabinet","priorite":"new","site":"https://www.roberthalf.fr","carrieres":"https://www.roberthalf.fr/offres-emploi/informatique","ville":"Lille (59)","specialites":"Recrutement IT, Support, Admin Sys, Infrastructure","linkedin":"https://www.linkedin.com/company/robert-half-international/","contacts":[],"notes":"Cabinet US. Division Technology. Bureau Lille.","candidatureIds":[]},
+  {"id":"cab-spring","nom":"Spring (Groupe Adecco)","type":"cabinet","priorite":"new","site":"https://www.spring-france.com","carrieres":"https://www.spring-france.com/offres-emploi","ville":"Lille (59)","specialites":"Recrutement cadres & techniciens IT","linkedin":"https://www.linkedin.com/company/spring-france/","contacts":[],"notes":"Branche recrutement Adecco. Positions techniques et cadres IT.","candidatureIds":[]},
+  {"id":"cab-free-work","nom":"Free-Work (ex Freelance-info)","type":"cabinet","priorite":"new","site":"https://www.free-work.com","carrieres":"https://www.free-work.com/fr/tech-it/jobs","ville":"Nationale","specialites":"Plateforme emploi IT, CDI/Freelance","linkedin":"https://www.linkedin.com/company/free-work/","contacts":[],"notes":"Plateforme spécialisée IT. Inscription profil recommandée.","candidatureIds":[]},
+  {"id":"cab-jefferson-frank","nom":"Jefferson Frank","type":"cabinet","priorite":"new","site":"https://www.jeffersonfrank.com/fr","carrieres":"https://www.jeffersonfrank.com/fr/emplois","ville":"Lille / Nationale","specialites":"Recrutement IT spécialisé, Cloud, Support","linkedin":"https://www.linkedin.com/company/jefferson-frank/","contacts":[],"notes":"Cabinet spécialisé IT/Cloud. Consultants dédiés par techno.","candidatureIds":[]},
+  {"id":"cab-lhh","nom":"LHH (Lee Hecht Harrison)","type":"cabinet","priorite":"new","site":"https://www.lhh.com/fr","carrieres":"","ville":"Lille (59)","specialites":"Recrutement, transition carrière, IT","linkedin":"https://www.linkedin.com/company/lhh/","contacts":[],"notes":"Groupe Adecco. Recrutement + accompagnement reconversion. Pertinent profil reconversion IT.","candidatureIds":[]},
+  {"id":"int-expectra","nom":"Expectra","type":"interim","priorite":"new","site":"https://www.expectra.fr","carrieres":"https://www.expectra.fr/offres-emploi/informatique","ville":"Lille (59)","specialites":"Intérim IT qualifié, Support, Admin Sys","linkedin":"https://www.linkedin.com/company/expectra/","contacts":[],"notes":"Intérim spécialisé cadres & techniciens. Groupe Randstad. Bon tremplin CDI.","candidatureIds":[]},
+  {"id":"int-randstad-digital","nom":"Randstad Digital (ex Ausy)","type":"interim","priorite":"new","site":"https://www.randstaddigital.fr","carrieres":"https://www.randstaddigital.fr/offres","ville":"Lille (59)","specialites":"Consulting IT, Support, Infrastructure, Cloud","linkedin":"https://www.linkedin.com/company/randstad-digital/","contacts":[],"notes":"ESN/Intérim groupe Randstad. Gros volume missions IT Nord.","candidatureIds":[]},
+  {"id":"int-modis","nom":"Akkodis (ex Modis)","type":"interim","priorite":"new","site":"https://www.akkodis.com/fr","carrieres":"https://www.akkodis.com/fr/offres-emploi","ville":"Lille (59)","specialites":"Consulting IT, Support, Infra, Digital","linkedin":"https://www.linkedin.com/company/akkodis/","contacts":[],"notes":"Groupe Adecco. Missions longues possibles → CDI.","candidatureIds":[]},
+  {"id":"int-proxiel","nom":"Proxiel","type":"interim","priorite":"new","site":"https://www.proxiel.fr","carrieres":"","ville":"Lille (59)","specialites":"Intérim IT, Support, Helpdesk, Proximité","linkedin":"https://www.linkedin.com/company/proxiel/","contacts":[],"notes":"Intérim IT Nord. Plus petite mais bien implantée localement.","candidatureIds":[]},
+  {"id":"int-sii","nom":"SII","type":"esn","priorite":"new","site":"https://www.groupe-sii.com","carrieres":"https://www.groupe-sii.com/fr/rejoindre-sii","ville":"Lille (59)","specialites":"Consulting IT, Support, Infra, Dev","linkedin":"https://www.linkedin.com/company/sii/","contacts":[],"notes":"Grande ESN française. Agence Lille.","candidatureIds":[]},
+  {"id":"int-alten","nom":"Alten","type":"esn","priorite":"new","site":"https://www.alten.fr","carrieres":"https://www.alten.fr/rejoignez-nous","ville":"Lille (59)","specialites":"Consulting IT, Ingénierie, Support, Infra","linkedin":"https://www.linkedin.com/company/alten/","contacts":[],"notes":"Grande ESN. Bureau Lille. Orienté ingénierie mais missions support possibles.","candidatureIds":[]},
+  {"id":"int-capgemini","nom":"Capgemini","type":"esn","priorite":"new","site":"https://www.capgemini.com/fr-fr","carrieres":"https://www.capgemini.com/fr-fr/carrieres","ville":"Lille (59)","specialites":"Infogérance, Support, Infrastructure, Cloud","linkedin":"https://www.linkedin.com/company/capgemini/","contacts":[],"notes":"Géant ESN. Infogérance = postes support N1/N2. Bureau Lille développé.","candidatureIds":[]},
+  {"id":"esn-sopra-steria","nom":"Sopra Steria","type":"esn","priorite":"new","site":"https://www.soprasteria.com/fr","carrieres":"https://www.soprasteria.com/fr/nous-rejoindre","ville":"Lille (59)","specialites":"Infogérance, Support, Infrastructure, Transformation digitale","linkedin":"https://www.linkedin.com/company/soprasteria/","contacts":[],"notes":"Grande ESN. Fort sur infogérance = postes support. Siège historique Nord.","candidatureIds":[]},
+  {"id":"cab-externatic","nom":"Externatic","type":"cabinet","priorite":"new","site":"https://www.externatic.fr","carrieres":"https://www.externatic.fr/offres-emploi","ville":"Lille (59)","specialites":"Recrutement IT pur, Dev, Infra, Support, Data","linkedin":"https://www.linkedin.com/company/externatic/","contacts":[],"notes":"⭐ Cabinet 100% IT. Très bonne réputation. Approche humaine. À contacter en priorité.","candidatureIds":[]},
+  {"id":"cab-winsearch","nom":"Winsearch Lille","type":"cabinet","priorite":"new","site":"https://www.winsearch.fr","carrieres":"https://www.winsearch.fr/offres-emploi","ville":"Lille (59)","specialites":"Recrutement experts & cadres, IT, Finance","linkedin":"https://www.linkedin.com/company/winsearch/","contacts":[],"notes":"Cabinet chasse / recrutement qualifié. Postes N2+.","candidatureIds":[]},
+  {"id":"cab-youman-pro","nom":"YOUMAN-PRO","type":"cabinet","priorite":"new","site":"https://www.youman-pro.fr","carrieres":"","ville":"Lille (59)","specialites":"Recrutement local, coaching CV/entretien","linkedin":"","contacts":[],"notes":"Cabinet local. Coaching CV et prépa entretien + recrutement.","candidatureIds":[]},
+  {"id":"cab-studio-rh","nom":"Studio RH","type":"cabinet","priorite":"new","site":"https://www.studiorh.fr","carrieres":"","ville":"Lille (59)","specialites":"Recrutement informatique & digital","linkedin":"https://www.linkedin.com/company/studiorh/","contacts":[],"notes":"Spécialisé IT/digital Lille. Local, plus accessible.","candidatureIds":[]},
+  {"id":"cab-adsearch","nom":"Adsearch Lille","type":"cabinet","priorite":"new","site":"https://www.adsearch.fr","carrieres":"https://www.adsearch.fr/offres-emploi","ville":"Lille (59)","specialites":"Recrutement middle/senior, IT, Digital, Finance","linkedin":"https://www.linkedin.com/company/adsearch/","contacts":[],"notes":"Bien noté. Consultants spécialisés par secteur.","candidatureIds":[]},
+  {"id":"cab-keylinkjob","nom":"Keylinkjob","type":"cabinet","priorite":"new","site":"https://www.keylinkjob.fr","carrieres":"","ville":"Lille (59)","specialites":"Recrutement multi-secteurs, IT possible","linkedin":"","contacts":[],"notes":"Généraliste avec bons retours.","candidatureIds":[]},
+  {"id":"cab-econsulting","nom":"e-Consulting RH","type":"cabinet","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Recrutement startup, digital, numérique","linkedin":"","contacts":[],"notes":"Orienté startup/digital.","candidatureIds":[]},
+  {"id":"esn-bbnd","nom":"BBND","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Développement, Services digitaux","linkedin":"","contacts":[],"notes":"ESN digitale Lille. Forte réactivité.","candidatureIds":[]},
+  {"id":"esn-unis","nom":"UNIS","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Villeneuve-d'Ascq (59)","specialites":"Conseil, Intégration, Prestation IT","linkedin":"","contacts":[],"notes":"ESN bien implantée Villeneuve-d'Ascq.","candidatureIds":[]},
+  {"id":"esn-quadra","nom":"Quadra Informatique","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Services numériques PME, Projets entreprise","linkedin":"","contacts":[],"notes":"ESN & services numériques orientée PME.","candidatureIds":[]},
+  {"id":"esn-inside","nom":"Inside Lille","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Transformation digitale, DevOps, IT","linkedin":"","contacts":[],"notes":"Services IT, projets transfo digitale & DevOps.","candidatureIds":[]},
+  {"id":"esn-esenca","nom":"ESENCA - Solutions IT","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Lezennes (59)","specialites":"Solutions informatiques","linkedin":"","contacts":[],"notes":"ESN basée Lezennes.","candidatureIds":[]},
+  {"id":"esn-younup","nom":"Younup Lille","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Conseil IT, Développement, Missions","linkedin":"","contacts":[],"notes":"Société conseil & IT.","candidatureIds":[]},
+  {"id":"esn-selfing","nom":"SELFING","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Consulting IT, Prestations informatiques","linkedin":"","contacts":[],"notes":"Consultant informatique & prestations IT Lille.","candidatureIds":[]},
+  {"id":"esn-apside","nom":"Apside Nord","type":"esn","priorite":"new","site":"https://www.apside.com","carrieres":"https://www.apside.com/rejoignez-nous","ville":"Lille (59)","specialites":"ESN nationale, Missions diversifiées, Support, Infra, Dev","linkedin":"https://www.linkedin.com/company/apside/","contacts":[],"notes":"Filiale Nord d'une ESN nationale. Missions variées.","candidatureIds":[]},
+  {"id":"esn-smile","nom":"Smile Open Source","type":"esn","priorite":"new","site":"https://www.smile.eu","carrieres":"https://www.smile.eu/fr/carrieres","ville":"Lille (59)","specialites":"Open source, Intégration, Solutions digitales","linkedin":"https://www.linkedin.com/company/smile/","contacts":[],"notes":"ESN open-source. Intégration solutions. Bureau Lille.","candidatureIds":[]},
+  {"id":"esn-goweb","nom":"Goweb","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Roubaix (59)","specialites":"ESN indépendante, Services IT","linkedin":"","contacts":[],"notes":"ESN indépendante Roubaix.","candidatureIds":[]},
+  {"id":"esn-icsis","nom":"Icsis","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Projets IT divers","linkedin":"","contacts":[],"notes":"ESN lilloise, projets IT variés.","candidatureIds":[]},
+  {"id":"esn-numen","nom":"Numen Services","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Marcq-en-Barœul (59)","specialites":"Services IT","linkedin":"","contacts":[],"notes":"Société services IT Marcq-en-Barœul.","candidatureIds":[]},
+  {"id":"esn-experis","nom":"Experis (ManpowerGroup)","type":"esn","priorite":"new","site":"https://www.experis.fr","carrieres":"https://www.experis.fr/candidats/offres-emploi","ville":"Lille (59)","specialites":"Consulting IT, Support, Infrastructure, Cybersécurité, Cloud","linkedin":"https://www.linkedin.com/company/experis/","contacts":[],"notes":"Branche IT de ManpowerGroup. Gros volume de missions IT Nord. Support, infra, cybersec. Bon tremplin — entre ESN et intérim qualifié.","candidatureIds":[]}
+];
+
+async function initEsnData() {
+  // Load localStorage first (has user edits like Michael Page)
+  const localData = JSON.parse(localStorage.getItem('esn-directory') || '[]');
+
+  if (localData.length > 0) {
+    // Merge: localStorage wins, seed adds new entries by ID + name
+    const localIds = new Set(localData.map(e => e.id));
+    const localNames = new Set(localData.map(e => e.nom.toLowerCase()));
+    esnData = [...localData];
+    let added = 0;
+    for (const entry of ESN_SEED_DATA) {
+      if (!localIds.has(entry.id) && !localNames.has(entry.nom.toLowerCase())) {
+        esnData.push(entry);
+        added++;
+      }
+    }
+    if (added > 0) toast(`📥 ${added} nouvelles fiches ajoutées au Réseau Pro`);
+  } else {
+    esnData = [...ESN_SEED_DATA];
+  }
+
+  // Auto-detect ESN from candidatures
+  autoDetectEsn();
+  localStorage.setItem('esn-directory', JSON.stringify(esnData));
+  updateTabCounts();
+  renderEsnStats();
+  renderEsnGrid();
+}
+
+function autoDetectEsn() {
+  // Scan candidatures for ESN keywords and auto-add new ones
+  const esnKeywords = ['ESN', 'SSII', 'infogérance', 'prestataire'];
+  const existingNames = new Set(esnData.map(e => e.nom.toLowerCase()));
+  
+  const esnCandidatures = data.filter(d => {
+    const notes = (d.notes || '').toLowerCase();
+    return notes.includes('esn') || notes.includes('ssii') || notes.includes('infogérance');
+  });
+
+  let added = 0;
+  for (const c of esnCandidatures) {
+    const name = c.entreprise;
+    if (!existingNames.has(name.toLowerCase())) {
+      esnData.push({
+        id: 'esn-' + crypto.randomUUID().slice(0, 8),
+        nom: name,
+        priorite: 'new',
+        site: '',
+        carrieres: '',
+        ville: c.lieu || '',
+        specialites: '',
+        linkedin: '',
+        contacts: [],
+        notes: `Auto-détectée depuis candidature: ${c.poste}`,
+        candidatureIds: [c.id],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+      existingNames.add(name.toLowerCase());
+      added++;
+    } else {
+      // Link candidature to existing ESN
+      const esn = esnData.find(e => e.nom.toLowerCase() === name.toLowerCase());
+      if (esn && (!esn.candidatureIds || !esn.candidatureIds.includes(c.id))) {
+        esn.candidatureIds = esn.candidatureIds || [];
+        esn.candidatureIds.push(c.id);
+      }
+    }
+  }
+  if (added > 0) {
+    localStorage.setItem('esn-directory', JSON.stringify(esnData));
+  }
+}
+
+function updateTabCounts() {
+  document.getElementById('tabCountCandidatures').textContent = data.length;
+  document.getElementById('tabCountEsn').textContent = esnData.length;
+}
+
+function renderEsnStats() {
+  const total = esnData.length;
+  const countEsn = esnData.filter(e => (e.type || 'esn') === 'esn').length;
+  const countCabinet = esnData.filter(e => e.type === 'cabinet').length;
+  const countInterim = esnData.filter(e => e.type === 'interim').length;
+  const hot = esnData.filter(e => e.priorite === 'hot').length;
+  const withContact = esnData.filter(e => e.contacts && e.contacts.length > 0).length;
+  const withEmail = esnData.filter(e => e.contacts && e.contacts.some(c => c.email)).length;
+  const withPhone = esnData.filter(e => e.contacts && e.contacts.some(c => c.telephone)).length;
+
+  document.getElementById('esn-stats-bar').innerHTML = `
+    <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total</div></div>
+    <div class="stat-card"><div class="stat-number" style="color:var(--accent2)">${countEsn}</div><div class="stat-label">🏢 ESN</div></div>
+    <div class="stat-card"><div class="stat-number" style="color:var(--pink)">${countCabinet}</div><div class="stat-label">🎯 Cabinets</div></div>
+    <div class="stat-card"><div class="stat-number" style="color:var(--yellow)">${countInterim}</div><div class="stat-label">⏳ Intérim</div></div>
+    <div class="stat-card"><div class="stat-number" style="color:var(--red)">${hot}</div><div class="stat-label">🔴 Hot</div></div>
+    <div class="stat-card"><div class="stat-number" style="color:var(--green)">${withContact}</div><div class="stat-label">Avec contact</div></div>
+    <div class="stat-card"><div class="stat-number" style="color:var(--blue)">${withEmail}</div><div class="stat-label">📧 Email</div></div>
+    <div class="stat-card"><div class="stat-number" style="color:var(--purple)">${withPhone}</div><div class="stat-label">📞 Téléphone</div></div>
+  `;
+}
+
+function setEsnFilter(filter, btn) {
+  esnFilter = filter;
+  document.querySelectorAll('[data-esn-filter]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderEsnGrid();
+}
+
+function renderEsnGrid() {
+  const query = document.getElementById('esnSearchInput').value.toLowerCase();
+  let filtered = esnData.filter(e => {
+    if (esnFilter.startsWith('type-') && (e.type || 'esn') !== esnFilter.replace('type-', '')) return false;
+    if (!esnFilter.startsWith('type-') && esnFilter !== 'all' && e.priorite !== esnFilter) return false;
+    if (query) {
+      const hay = `${e.nom} ${e.ville} ${e.specialites} ${e.notes} ${(e.contacts||[]).map(c => `${c.nom} ${c.role} ${c.email} ${c.telephone}`).join(' ')}`.toLowerCase();
+      if (!hay.includes(query)) return false;
+    }
+    return true;
+  });
+
+  // Sort: hot first, then warm, new, cold
+  const pOrder = { hot: 0, warm: 1, new: 2, cold: 3 };
+  filtered.sort((a, b) => (pOrder[a.priorite] || 99) - (pOrder[b.priorite] || 99));
+
+  const grid = document.getElementById('esnGrid');
+  const empty = document.getElementById('esnEmptyState');
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  grid.innerHTML = filtered.map(e => {
+    const priorityLabels = { hot: '🔴 HOT', warm: '🟠 WARM', cold: '⚪ COLD', new: '🔵 NOUVEAU' };
+    const typeLabels = { esn: '🏢 ESN', cabinet: '🎯 Cabinet', interim: '⏳ Intérim IT' };
+    const eType = e.type || 'esn';
+    
+    // Count linked candidatures
+    const linkedCount = e.candidatureIds ? e.candidatureIds.length : 0;
+
+    // Render contacts
+    let contactsHtml = '';
+    if (e.contacts && e.contacts.length > 0) {
+      contactsHtml = `<div class="esn-contacts">${e.contacts.map(c => `
+        <div class="esn-contact">
+          <span class="esn-contact-name">${esc(c.nom)}${c.role ? ` — <span class="esn-contact-role">${esc(c.role)}</span>` : ''}</span>
+          <div class="esn-contact-channels">
+            ${c.email ? `<a href="mailto:${esc(c.email)}" title="Email">📧 ${esc(c.email)}</a>` : ''}
+            ${c.telephone ? `<a href="tel:${esc(c.telephone)}" title="Téléphone">📞 ${esc(c.telephone)}</a>` : ''}
+            ${c.linkedin ? `<a href="${esc(c.linkedin)}" target="_blank" title="LinkedIn">💼 LinkedIn</a>` : ''}
+          </div>
+        </div>
+      `).join('')}</div>`;
+    } else {
+      contactsHtml = '<div style="color:var(--text2);font-size:0.8rem;margin:8px 0;">⚠️ Aucun contact identifié</div>';
+    }
+
+    return `
+    <div class="esn-card" onclick="openEsnModal('${e.id}')">
+      <div class="esn-card-header">
+        <h3>${esc(e.nom)}</h3>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span style="font-size:0.68rem;color:var(--text2);background:var(--bg3);padding:2px 8px;border-radius:10px;">${typeLabels[eType] || eType}</span>
+          <span class="esn-priority priority-${e.priorite}">${priorityLabels[e.priorite] || e.priorite}</span>
+        </div>
+      </div>
+      ${contactsHtml}
+      <div class="esn-meta">
+        ${e.ville ? `<span class="esn-meta-item">📍 ${esc(e.ville)}</span>` : ''}
+        ${e.specialites ? `<span class="esn-meta-item">🛠️ ${esc(e.specialites)}</span>` : ''}
+        ${e.site ? `<a href="${esc(e.site)}" target="_blank" class="esn-meta-item" style="color:var(--accent2)" onclick="event.stopPropagation()">🌐 Site</a>` : ''}
+        ${e.linkedin ? `<a href="${esc(e.linkedin)}" target="_blank" class="esn-meta-item" style="color:var(--accent2)" onclick="event.stopPropagation()">💼 LinkedIn</a>` : ''}
+      </div>
+      ${linkedCount > 0 ? `<div class="esn-candidatures-count">📋 ${linkedCount} candidature${linkedCount > 1 ? 's' : ''} liée${linkedCount > 1 ? 's' : ''}</div>` : ''}
+      ${e.notes ? `<div class="esn-notes">${esc(truncate(e.notes, 120))}</div>` : ''}
+      <div style="margin-top:10px;display:flex;gap:6px;">
+        <button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); hunterSearch('${e.id}')" title="Chercher contacts via Hunter.io">🔍 Hunter</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ESN MODAL
+let contactFieldCount = 0;
+
+function openEsnModal(id) {
+  const modal = document.getElementById('esnModal');
+  const isEdit = !!id;
+  document.getElementById('esnModalTitle').textContent = isEdit ? 'Modifier ESN' : 'Nouvelle ESN';
+  document.getElementById('esnDeleteBtn').style.display = isEdit ? 'inline-flex' : 'none';
+  contactFieldCount = 0;
+
+  if (isEdit) {
+    const entry = esnData.find(e => e.id === id);
+    if (!entry) return;
+    document.getElementById('esnEditId').value = id;
+    document.getElementById('esnNom').value = entry.nom || '';
+    document.getElementById('esnType').value = entry.type || 'esn';
+    document.getElementById('esnPriorite').value = entry.priorite || 'new';
+    document.getElementById('esnSite').value = entry.site || '';
+    document.getElementById('esnCarrieres').value = entry.carrieres || '';
+    document.getElementById('esnVille').value = entry.ville || '';
+    document.getElementById('esnSpecialites').value = entry.specialites || '';
+    document.getElementById('esnLinkedin').value = entry.linkedin || '';
+    document.getElementById('esnNotes').value = entry.notes || '';
+    // Contacts
+    document.getElementById('esnContactsList').innerHTML = '';
+    if (entry.contacts && entry.contacts.length > 0) {
+      entry.contacts.forEach(c => addContactField(c));
+    }
+  } else {
+    document.getElementById('esnEditId').value = '';
+    document.getElementById('esnNom').value = '';
+    document.getElementById('esnType').value = 'esn';
+    document.getElementById('esnPriorite').value = 'new';
+    document.getElementById('esnSite').value = '';
+    document.getElementById('esnCarrieres').value = '';
+    document.getElementById('esnVille').value = '';
+    document.getElementById('esnSpecialites').value = '';
+    document.getElementById('esnLinkedin').value = '';
+    document.getElementById('esnNotes').value = '';
+    document.getElementById('esnContactsList').innerHTML = '';
+  }
+
+  modal.classList.add('active');
+  document.getElementById('esnNom').focus();
+}
+
+function closeEsnModal() { document.getElementById('esnModal').classList.remove('active'); }
+
+function addContactField(prefill) {
+  const idx = contactFieldCount++;
+  const container = document.getElementById('esnContactsList');
+  const div = document.createElement('div');
+  div.className = 'esn-contact';
+  div.style.marginBottom = '10px';
+  div.innerHTML = `
+    <div class="form-row" style="margin-bottom:6px">
+      <div class="form-group" style="margin-bottom:0"><input type="text" id="cNom${idx}" placeholder="Nom du contact" value="${esc(prefill?.nom || '')}"></div>
+      <div class="form-group" style="margin-bottom:0"><input type="text" id="cRole${idx}" placeholder="Rôle (RH, Chargé recrutement...)" value="${esc(prefill?.role || '')}"></div>
+    </div>
+    <div class="form-row" style="margin-bottom:6px">
+      <div class="form-group" style="margin-bottom:0"><input type="email" id="cEmail${idx}" placeholder="📧 Email" value="${esc(prefill?.email || '')}"></div>
+      <div class="form-group" style="margin-bottom:0"><input type="tel" id="cTel${idx}" placeholder="📞 Téléphone" value="${esc(prefill?.telephone || '')}"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:0"><input type="url" id="cLinkedin${idx}" placeholder="💼 LinkedIn du contact" value="${esc(prefill?.linkedin || '')}"></div>
+    <button class="btn btn-small btn-danger" style="margin-top:6px" onclick="this.parentElement.remove()">✕ Retirer</button>
+  `;
+  container.appendChild(div);
+}
+
+function collectContacts() {
+  const contacts = [];
+  for (let i = 0; i < contactFieldCount; i++) {
+    const nom = document.getElementById(`cNom${i}`);
+    if (!nom) continue; // removed
+    const c = {
+      nom: nom.value.trim(),
+      role: document.getElementById(`cRole${i}`)?.value.trim() || '',
+      email: document.getElementById(`cEmail${i}`)?.value.trim() || '',
+      telephone: document.getElementById(`cTel${i}`)?.value.trim() || '',
+      linkedin: document.getElementById(`cLinkedin${i}`)?.value.trim() || ''
+    };
+    if (c.nom || c.email || c.telephone) contacts.push(c);
+  }
+  return contacts;
+}
+
+function saveEsn() {
+  const nom = document.getElementById('esnNom').value.trim();
+  if (!nom) { toast('⚠️ Nom ESN requis', 'var(--orange)'); return; }
+
+  const id = document.getElementById('esnEditId').value;
+  const entry = {
+    id: id || 'esn-' + crypto.randomUUID().slice(0, 8),
+    nom,
+    type: document.getElementById('esnType').value,
+    priorite: document.getElementById('esnPriorite').value,
+    site: document.getElementById('esnSite').value.trim(),
+    carrieres: document.getElementById('esnCarrieres').value.trim(),
+    ville: document.getElementById('esnVille').value.trim(),
+    specialites: document.getElementById('esnSpecialites').value.trim(),
+    linkedin: document.getElementById('esnLinkedin').value.trim(),
+    contacts: collectContacts(),
+    notes: document.getElementById('esnNotes').value.trim(),
+    updatedAt: new Date().toISOString()
+  };
+
+  if (id) {
+    const idx = esnData.findIndex(e => e.id === id);
+    if (idx !== -1) {
+      entry.candidatureIds = esnData[idx].candidatureIds || [];
+      entry.createdAt = esnData[idx].createdAt;
+      esnData[idx] = entry;
+    }
+  } else {
+    entry.candidatureIds = [];
+    entry.createdAt = new Date().toISOString();
+    esnData.push(entry);
+  }
+
+  saveEsnData();
+  closeEsnModal();
+  toast(id ? '✏️ ESN mise à jour' : '✅ ESN ajoutée');
+}
+
+function deleteEsn() {
+  const id = document.getElementById('esnEditId').value;
+  if (!id || !confirm('Supprimer cette ESN ?')) return;
+  esnData = esnData.filter(e => e.id !== id);
+  saveEsnData();
+  closeEsnModal();
+  toast('🗑️ ESN supprimée', 'var(--red)');
+}
+
+// SEED DATA — auto-load if localStorage is empty
+const SEED_DATA = [
+  {"id":"hw-reproit","entreprise":"REPRO-IT (Groupe IT & You)","poste":"Technicien Helpdesk informatique et téléphonie VoIP","contact":"","source":"HelloWork","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Lille (59)","url":"https://www.hellowork.com/fr-fr/emplois/74826636.html","salaire":"25K-30K brut/an","notes":"CDI. Carte restaurant + club employé. Support N1/N2, parc info, VoIP.","history":[{"date":"2026-02-20","action":"Candidature envoyée via HelloWork"}],"createdAt":"2026-02-20T09:00:00Z","updatedAt":"2026-02-20T10:30:00Z"},
+  {"id":"hw-actual-talent","entreprise":"Actual Talent (ex Up Skills)","poste":"Technicien Helpdesk H/F","contact":"","source":"HelloWork","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Lille (59)","url":"","salaire":"","notes":"CDI. Multi-apply.","history":[{"date":"2026-02-20","action":"Candidature envoyée via HelloWork"}],"createdAt":"2026-02-20T10:30:00Z","updatedAt":"2026-02-20T10:30:00Z"},
+  {"id":"hw-econocom","entreprise":"Econocom","poste":"Technicien Support Utilisateurs H/F","contact":"","source":"HelloWork","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Lille (59)","url":"","salaire":"","notes":"CDI. Multi-apply.","history":[{"date":"2026-02-20","action":"Candidature envoyée via HelloWork"}],"createdAt":"2026-02-20T10:30:00Z","updatedAt":"2026-02-20T10:30:00Z"},
+  {"id":"hw-draks","entreprise":"Draks","poste":"Technicien Support Utilisateurs - Lille H/F","contact":"","source":"HelloWork","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Lille (59)","url":"","salaire":"","notes":"CDI. Multi-apply.","history":[{"date":"2026-02-20","action":"Candidature envoyée via HelloWork"}],"createdAt":"2026-02-20T10:30:00Z","updatedAt":"2026-02-20T10:30:00Z"},
+  {"id":"hw-mm-militzer","entreprise":"M&M Militzer & Munch","poste":"Support Informatique Niveau 1 H/F","contact":"","source":"HelloWork","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Halluin (59)","url":"https://www.hellowork.com/fr-fr/emplois/75397675.html","salaire":"21.9K-31.2K brut/an","notes":"CDI. Télétravail occasionnel. 13ème mois, tickets resto, mutuelle, participation, CSE. Secteur transport/logistique.","history":[{"date":"2026-02-20","action":"Candidature envoyée via HelloWork avec message personnalisé"}],"createdAt":"2026-02-20T10:40:00Z","updatedAt":"2026-02-20T10:40:00Z"},
+  {"id":"hw-helpline-retail","entreprise":"HELPLINE","poste":"Technicien Support Applicatif & Proximité Métier Retail H/F","contact":"Isabelle Néri - Director of Talent Acquisition","source":"HelloWork","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Marcq-en-Barœul (59)","url":"https://www.hellowork.com/fr-fr/emplois/75874997.html","salaire":"22K-29K brut/an","notes":"CDI. ESN. Support applicatif métier Retail. Tickets resto 9.50€. EMAIL DIRECT envoyé à Isabelle Néri (Director Talent Acquisition) le 20/02.","history":[{"date":"2026-02-20","action":"Candidature envoyée via HelloWork avec message personnalisé Retail"},{"date":"2026-02-20","action":"Email direct à Isabelle Néri (Director Talent Acquisition)"}],"createdAt":"2026-02-20T10:45:00Z","updatedAt":"2026-02-20T17:51:00Z"},
+  {"id":"hw-osmozium","entreprise":"OSMOZIUM","poste":"Technicien Support - Lille - CDI H/F","contact":"","source":"HelloWork","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Lille (59)","url":"https://www.hellowork.com/fr-fr/emplois/75806838.html","salaire":"21.9K-22.8K brut/an","notes":"CDI. ESN. Télétravail occasionnel. Support N1 réseau magasins + siège. Travail 7j/7 roulement.","history":[{"date":"2026-02-20","action":"Candidature envoyée via HelloWork avec message personnalisé"}],"createdAt":"2026-02-20T10:50:00Z","updatedAt":"2026-02-20T10:50:00Z"},
+  {"id":"hw-securinfor","entreprise":"Securinfor","poste":"Technicien de Proximité H/F","contact":"","source":"HelloWork","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Wasquehal (59)","url":"https://www.hellowork.com/fr-fr/emplois/75948855.html","salaire":"22.5K-24K brut/an","notes":"CDI. ESN. Support proximité N1/N2, gestion parc, ticketing.","history":[{"date":"2026-02-20","action":"Candidature envoyée via HelloWork avec message personnalisé"}],"createdAt":"2026-02-20T10:52:00Z","updatedAt":"2026-02-20T10:52:00Z"},
+  {"id":"hw-actual-talent-proxi","entreprise":"Actual Talent (ex Up Skills)","poste":"Technicien Support de Proximité H/F","contact":"","source":"HelloWork","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Lille (59)","url":"","salaire":"","notes":"CDI. Multi-apply depuis Securinfor.","history":[{"date":"2026-02-20","action":"Candidature envoyée via HelloWork multi-apply"}],"createdAt":"2026-02-20T10:53:00Z","updatedAt":"2026-02-20T10:53:00Z"},
+  {"id":"hw-astek","entreprise":"Astek","poste":"Technicien Informatique H/F","contact":"","source":"HelloWork","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Lille (59)","url":"","salaire":"","notes":"CDI. Télétravail partiel. ESN. Multi-apply depuis Securinfor.","history":[{"date":"2026-02-20","action":"Candidature envoyée via HelloWork multi-apply"}],"createdAt":"2026-02-20T10:53:00Z","updatedAt":"2026-02-20T10:53:00Z"},
+  {"id":"indeed-sarbec","entreprise":"Laboratoires Sarbec (Groupe VABEL)","poste":"Technicien Support Informatique H/F","contact":"","source":"Indeed","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Neuville-en-Ferrain (59)","url":"","salaire":"","notes":"CDI. Intéressement, participation, RTT. Support utilisateurs, maintenance parc. À 5 min d'Halluin.","history":[{"date":"2026-02-20","action":"Candidature envoyée via Indeed"}],"createdAt":"2026-02-20T13:00:00Z","updatedAt":"2026-02-20T13:00:00Z"},
+  {"id":"indeed-netim","entreprise":"NETIM","poste":"Administrateur Systèmes et Réseaux Junior H/F","contact":"","source":"Indeed","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Lille (59)","url":"","salaire":"2400-2800€/mois","notes":"CDI. Proxmox, VMware, Linux, Zabbix, AD, Docker. Débutants acceptés. Près d'Euratechnologies.","history":[{"date":"2026-02-20","action":"Candidature envoyée via Indeed"}],"createdAt":"2026-02-20T13:05:00Z","updatedAt":"2026-02-20T13:05:00Z"},
+  {"id":"indeed-chevalier","entreprise":"Chevalier","poste":"Technicien Informatique H/F","contact":"","source":"Indeed","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Lesquin (59)","url":"","salaire":"27K+ brut/an","notes":"CDI. PME familiale 100 collaborateurs. Support N1/N2, Windows/M365, réseau. Première exp acceptée. RTT, intéressement.","history":[{"date":"2026-02-20","action":"Candidature envoyée via Indeed"}],"createdAt":"2026-02-20T13:10:00Z","updatedAt":"2026-02-20T13:10:00Z"},
+  {"id":"linkedin-teceze","entreprise":"TECEZE","poste":"IT Support Specialist","contact":"","source":"LinkedIn","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Armentières (59)","url":"https://www.linkedin.com/jobs/view/4371168549/","salaire":"","notes":"CDI. Sur site. Support hardware, O365, DHCP/DNS, réseau L1, datacenter. Candidature simplifiée LinkedIn.","history":[{"date":"2026-02-20","action":"Candidature envoyée via LinkedIn Easy Apply"}],"createdAt":"2026-02-20T14:15:00Z","updatedAt":"2026-02-20T14:15:00Z"},
+  {"id":"linkedin-ovhcloud","entreprise":"OVHcloud","poste":"Technicien maintenance datacenter H/F/N","contact":"","source":"LinkedIn","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Roubaix (59)","url":"https://www.linkedin.com/jobs/view/4369367053/","salaire":"","notes":"CDI. Sur site. Équipe 18 techniciens, 3×8h, maintenance hardware serveurs, monitoring. Candidature simplifiée LinkedIn.","history":[{"date":"2026-02-20","action":"Candidature envoyée via LinkedIn Easy Apply"}],"createdAt":"2026-02-20T14:20:00Z","updatedAt":"2026-02-20T14:20:00Z"},
+  {"id":"linkedin-tekneum-astek","entreprise":"Tekneum by Astek","poste":"Technicien Informatique - Lille H/F","contact":"","source":"LinkedIn","date":"2026-02-20","statut":"envoyee","relanceDate":"2026-02-27","lieu":"Lille (59)","url":"https://www.linkedin.com/jobs/view/4363163760/","salaire":"","notes":"CDI. Hybride. ESN. Support N1/N2/proximité/VIP, O365, AD, VMware, Centreon/Zabbix. Candidature simplifiée LinkedIn.","history":[{"date":"2026-02-20","action":"Candidature envoyée via LinkedIn Easy Apply"}],"createdAt":"2026-02-20T14:25:00Z","updatedAt":"2026-02-20T14:25:00Z"}
+];
+
+// === CONTACTS RH MANAGEMENT ===
+
+let contactsData = [];
+let contactsFilter = 'all';
+let objectifFieldCount = 0;
+
+function initContactsData() {
+  try {
+    // Force reload from CONTACTS_SEED_DATA to apply updates
+    contactsData = [...CONTACTS_SEED_DATA];
+    saveContactsData();
+    renderContactsStats();
+    renderContactsGrid();
+  } catch(e) {
+    console.error('Erreur init contacts:', e);
+    contactsData = [...CONTACTS_SEED_DATA];
+    saveContactsData();
+  }
+}
+
+function saveContactsData() {
+  try {
+    localStorage.setItem('jobtracker-contacts', JSON.stringify(contactsData));
+  } catch(e) {
+    console.error('Erreur sauvegarde contacts:', e);
+  }
+}
+
+function renderContactsStats() {
+  const total = contactsData.length;
+  const aContacter = contactsData.filter(c => c.statut === 'a-contacter').length;
+  const contacte = contactsData.filter(c => c.statut === 'contacte').length;
+  const rdv = contactsData.filter(c => c.statut === 'rdv').length;
+  const urgent = contactsData.filter(c => c.priorite === 'urgent').length;
+  
+  document.getElementById('contacts-stats-bar').innerHTML = `
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-number">${total}</div>
+        <div class="stat-label">Total contacts</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" style="color:var(--blue)">${aContacter}</div>
+        <div class="stat-label">À contacter</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" style="color:var(--green)">${contacte}</div>
+        <div class="stat-label">Contactés</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" style="color:var(--accent)">${rdv}</div>
+        <div class="stat-label">RDV programmés</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" style="color:var(--red)">${urgent}</div>
+        <div class="stat-label">Urgents</div>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('tabCountContacts').textContent = total;
+}
+
+function setContactsFilter(filter, btn) {
+  contactsFilter = filter;
+  document.querySelectorAll('[data-contacts-filter]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderContactsGrid();
+}
+
+function renderContactsGrid() {
+  const search = document.getElementById('contactsSearchInput')?.value.toLowerCase() || '';
+  
+  let filtered = contactsData.filter(c => {
+    const matchesSearch = !search || 
+      c.nom.toLowerCase().includes(search) ||
+      c.entreprise.toLowerCase().includes(search) ||
+      c.role.toLowerCase().includes(search) ||
+      c.ville?.toLowerCase().includes(search);
+      
+    const matchesFilter = contactsFilter === 'all' ||
+      (contactsFilter.startsWith('status-') && c.statut === contactsFilter.replace('status-', '')) ||
+      (contactsFilter.startsWith('priorite-') && c.priorite === contactsFilter.replace('priorite-', ''));
+      
+    return matchesSearch && matchesFilter;
+  });
+  
+  const grid = document.getElementById('contactsGrid');
+  const emptyState = document.getElementById('contactsEmptyState');
+  
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    emptyState.style.display = 'flex';
+    return;
+  }
+  
+  emptyState.style.display = 'none';
+  
+  const priorityLabels = {
+    urgent: '🔴 Urgent',
+    important: '🟠 Important',
+    normal: '🟡 Normal'
+  };
+  
+  const statusLabels = {
+    'a-contacter': '📧 À contacter',
+    'contacte': '✅ Contacté',
+    'rdv': '📅 RDV programmé',
+    'suivi': '🔄 En suivi',
+    'dead': '💀 Dead'
+  };
+  
+  grid.innerHTML = filtered.map(c => {
+    const objectifsActifs = (c.objectifs || []).filter(o => !o.termine).length;
+    const objectifsTotal = (c.objectifs || []).length;
+    
+    return `
+    <div class="esn-card" onclick="openContactModal('${c.id}')">
+      <div class="esn-card-header">
+        <div>
+          <h3>${esc(c.nom)}</h3>
+          <div style="font-size:0.8rem;color:var(--text2);margin-top:2px;">${esc(c.role)} @ ${esc(c.entreprise)}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-direction:column;">
+          <span class="esn-priority priority-${c.priorite === 'urgent' ? 'hot' : c.priorite === 'important' ? 'warm' : 'cold'}">${priorityLabels[c.priorite] || c.priorite}</span>
+          <span style="font-size:0.68rem;color:var(--text2);background:var(--bg3);padding:2px 8px;border-radius:10px;">${statusLabels[c.statut] || c.statut}</span>
+        </div>
+      </div>
+      
+      <div class="esn-contacts" style="margin: 8px 0;">
+        ${c.email ? `<div style="font-size:0.8rem;"><a href="mailto:${esc(c.email)}" onclick="event.stopPropagation()" style="color:var(--accent2)">📧 ${esc(c.email)}</a></div>` : ''}
+        ${c.telephone ? `<div style="font-size:0.8rem;"><a href="tel:${esc(c.telephone)}" onclick="event.stopPropagation()" style="color:var(--accent2)">📞 ${esc(c.telephone)}</a></div>` : ''}
+        ${c.linkedin ? `<div style="font-size:0.8rem;"><a href="${esc(c.linkedin)}" target="_blank" onclick="event.stopPropagation()" style="color:var(--accent2)">💼 LinkedIn</a></div>` : ''}
+      </div>
+      
+      <div class="esn-meta">
+        ${c.ville ? `<span class="esn-meta-item">📍 ${esc(c.ville)}</span>` : ''}
+        ${c.source ? `<span class="esn-meta-item">🔍 ${esc(c.source)}</span>` : ''}
+      </div>
+      
+      ${objectifsActifs > 0 ? `<div style="background:rgba(99,102,241,0.1);color:var(--accent2);padding:6px 10px;border-radius:6px;font-size:0.75rem;margin:8px 0;">🎯 ${objectifsActifs}/${objectifsTotal} objectifs actifs</div>` : ''}
+      
+      ${c.notes ? `<div class="esn-notes">${esc(truncate(c.notes, 100))}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// CONTACT MODAL
+function openContactModal(id) {
+  const modal = document.getElementById('contactModal');
+  const isEdit = !!id;
+  document.getElementById('contactModalTitle').textContent = isEdit ? 'Modifier Contact' : 'Nouveau Contact RH';
+  document.getElementById('contactDeleteBtn').style.display = isEdit ? 'inline-flex' : 'none';
+  objectifFieldCount = 0;
+
+  if (isEdit) {
+    const contact = contactsData.find(c => c.id === id);
+    if (!contact) return;
+    document.getElementById('contactEditId').value = id;
+    document.getElementById('contactNom').value = contact.nom || '';
+    document.getElementById('contactRole').value = contact.role || '';
+    document.getElementById('contactEntreprise').value = contact.entreprise || '';
+    document.getElementById('contactVille').value = contact.ville || '';
+    document.getElementById('contactEmail').value = contact.email || '';
+    document.getElementById('contactTelephone').value = contact.telephone || '';
+    document.getElementById('contactLinkedin').value = contact.linkedin || '';
+    document.getElementById('contactStatut').value = contact.statut || 'a-contacter';
+    document.getElementById('contactPriorite').value = contact.priorite || 'normal';
+    document.getElementById('contactSource').value = contact.source || '';
+    document.getElementById('contactNotes').value = contact.notes || '';
+    // Objectifs
+    document.getElementById('objectifsList').innerHTML = '';
+    if (contact.objectifs && contact.objectifs.length > 0) {
+      contact.objectifs.forEach(o => addObjectifField(o));
+    }
+  } else {
+    document.getElementById('contactEditId').value = '';
+    document.getElementById('contactNom').value = '';
+    document.getElementById('contactRole').value = '';
+    document.getElementById('contactEntreprise').value = '';
+    document.getElementById('contactVille').value = '';
+    document.getElementById('contactEmail').value = '';
+    document.getElementById('contactTelephone').value = '';
+    document.getElementById('contactLinkedin').value = '';
+    document.getElementById('contactStatut').value = 'a-contacter';
+    document.getElementById('contactPriorite').value = 'normal';
+    document.getElementById('contactSource').value = '';
+    document.getElementById('contactNotes').value = '';
+    document.getElementById('objectifsList').innerHTML = '';
+  }
+
+  modal.classList.add('active');
+  document.getElementById('contactNom').focus();
+}
+
+function closeContactModal() { 
+  document.getElementById('contactModal').classList.remove('active'); 
+}
+
+function addObjectifField(prefill) {
+  const idx = objectifFieldCount++;
+  const container = document.getElementById('objectifsList');
+  const div = document.createElement('div');
+  div.className = 'esn-contact';
+  div.style.marginBottom = '10px';
+  div.innerHTML = `
+    <div class="form-row" style="margin-bottom:6px">
+      <div class="form-group" style="margin-bottom:0;flex:2"><input type="text" id="objTexte${idx}" placeholder="Ex: Envoyer message LinkedIn, Programmer call, Relancer par email..." value="${esc(prefill?.texte || '')}"></div>
+      <div class="form-group" style="margin-bottom:0;flex:1"><input type="date" id="objEcheance${idx}" value="${prefill?.echeance || ''}"></div>
+    </div>
+    <div class="form-row" style="margin-bottom:6px;align-items:center;">
+      <label style="display:flex;align-items:center;font-size:0.8rem;"><input type="checkbox" id="objTermine${idx}" ${prefill?.termine ? 'checked' : ''}> <span style="margin-left:6px;">✅ Terminé</span></label>
+      <button class="btn btn-small btn-danger" onclick="this.parentElement.parentElement.remove()">✕ Retirer</button>
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function collectObjectifs() {
+  const objectifs = [];
+  for (let i = 0; i < objectifFieldCount; i++) {
+    const texte = document.getElementById(`objTexte${i}`);
+    if (!texte) continue; // removed
+    const obj = {
+      texte: texte.value.trim(),
+      echeance: document.getElementById(`objEcheance${i}`)?.value || '',
+      termine: document.getElementById(`objTermine${i}`)?.checked || false
+    };
+    if (obj.texte) objectifs.push(obj);
+  }
+  return objectifs;
+}
+
+function saveContact() {
+  const nom = document.getElementById('contactNom').value.trim();
+  const entreprise = document.getElementById('contactEntreprise').value.trim();
+  if (!nom || !entreprise) { 
+    toast('⚠️ Nom et entreprise requis', 'var(--orange)'); 
+    return; 
+  }
+
+  const id = document.getElementById('contactEditId').value;
+  const contact = {
+    id: id || 'contact-' + crypto.randomUUID().slice(0, 8),
+    nom,
+    role: document.getElementById('contactRole').value.trim(),
+    entreprise,
+    ville: document.getElementById('contactVille').value.trim(),
+    email: document.getElementById('contactEmail').value.trim(),
+    telephone: document.getElementById('contactTelephone').value.trim(),
+    linkedin: document.getElementById('contactLinkedin').value.trim(),
+    statut: document.getElementById('contactStatut').value,
+    priorite: document.getElementById('contactPriorite').value,
+    source: document.getElementById('contactSource').value.trim(),
+    notes: document.getElementById('contactNotes').value.trim(),
+    objectifs: collectObjectifs(),
+    updatedAt: new Date().toISOString()
+  };
+
+  if (id) {
+    const idx = contactsData.findIndex(c => c.id === id);
+    if (idx !== -1) {
+      contact.createdAt = contactsData[idx].createdAt;
+      contactsData[idx] = contact;
+    }
+  } else {
+    contact.createdAt = new Date().toISOString();
+    contactsData.push(contact);
+  }
+
+  saveContactsData();
+  closeContactModal();
+  renderContactsStats();
+  renderContactsGrid();
+  toast(id ? '✏️ Contact mis à jour' : '✅ Contact ajouté');
+}
+
+function deleteContact() {
+  const id = document.getElementById('contactEditId').value;
+  if (!id || !confirm('Supprimer ce contact ?')) return;
+  contactsData = contactsData.filter(c => c.id !== id);
+  saveContactsData();
+  closeContactModal();
+  renderContactsStats();
+  renderContactsGrid();
+  toast('🗑️ Contact supprimé', 'var(--red)');
+}
+
+// SEED DATA CONTACTS RH
+const CONTACTS_SEED_DATA = [
+  {
+    id: 'contact-bruno-vincent-netim',
+    nom: 'Bruno VINCENT',
+    role: 'CEO & founder',
+    entreprise: 'NETIM',
+    ville: 'Lille',
+    email: 'bruno.vincent@netim.com',
+    telephone: '',
+    linkedin: 'https://www.linkedin.com/in/bruno-vincent-6b5261109',
+    statut: 'rdv',
+    priorite: 'urgent',
+    source: 'Hunter.io + Réponse reçue par email',
+    notes: 'CEO NETIM qui a répondu personnellement ! RÉPONSE ENVOYÉE via Indeed le 20/02/2026. Contact direct excellent établi.',
+    objectifs: [
+      { texte: 'Répondre à son email via Indeed', echeance: '2026-02-20', termine: true },
+      { texte: 'Attendre suite de sa part', echeance: '2026-02-25', termine: false },
+      { texte: 'Programmer entretien si suite positive', echeance: '2026-02-27', termine: false }
+    ],
+    createdAt: '2026-02-20T16:35:00Z',
+    updatedAt: '2026-02-20T18:50:00Z'
+  },
+  {
+    id: 'contact-isabelle-neri-helpline',
+    nom: 'Isabelle Néri',
+    role: 'Director of Talent Acquisition',
+    entreprise: 'HELPLINE',
+    ville: 'Marcq-en-Barœul',
+    email: 'isabelle.neri@helpline.fr',
+    telephone: '',
+    linkedin: 'https://www.linkedin.com/in/isabelle-neri',
+    statut: 'contacte',
+    priorite: 'urgent',
+    source: 'Hunter.io',
+    notes: 'Directrice recrutement chez HELPLINE (ESN Retail). EMAIL ENVOYÉ le 20/02/2026 avec pitch candidature Support Retail. Professionnel et direct.',
+    objectifs: [
+      { texte: 'Email de présentation candidature Retail', echeance: '2026-02-20', termine: true },
+      { texte: 'Relance si pas de réponse', echeance: '2026-02-26', termine: false },
+      { texte: 'Programmer échange téléphonique si réponse positive', echeance: '2026-02-28', termine: false }
+    ],
+    createdAt: '2026-02-20T16:35:00Z',
+    updatedAt: '2026-02-20T17:51:00Z'
+  },
+  {
+    id: 'contact-szymon-wroblewski-ovh',
+    nom: 'Szymon Wroblewski',
+    role: 'Senior Software Engineer (DevOps)',
+    entreprise: 'OVHcloud',
+    ville: 'Pologne (travaille pour OVH Roubaix)',
+    email: 'szymon.wroblewski@ovhcloud.com',
+    telephone: '',
+    linkedin: 'https://www.linkedin.com/in/szymon-wroblewski-67251b59',
+    statut: 'contacte',
+    priorite: 'important',
+    source: 'Hunter.io',
+    notes: 'Senior DevOps Engineer chez OVHcloud, basé en Pologne. DEMANDE CONNEXION LINKEDIN envoyée le 20/02/2026 (message networking/conseil technique). Approche networking, pas candidature directe.',
+    objectifs: [
+      { texte: 'Demande connexion LinkedIn en anglais', echeance: '2026-02-20', termine: true },
+      { texte: 'Attendre acceptation connexion', echeance: '2026-02-25', termine: false },
+      { texte: 'Si accepté: message conseil parcours DevOps', echeance: '2026-02-27', termine: false }
+    ],
+    createdAt: '2026-02-20T16:35:00Z',
+    updatedAt: '2026-02-20T18:01:00Z'
+  },
+  {
+    id: 'contact-fatia-makhloufi-econocom',
+    nom: 'Fatia Makhloufi',
+    role: 'IT Recruiter & Business Partner',
+    entreprise: 'Econocom',
+    ville: 'Région Est (mais contact backup)',
+    email: 'fatia.makhloufi@econocom.com',
+    telephone: '',
+    linkedin: 'https://www.linkedin.com/in/fatia-makhloufi-602350186',
+    statut: 'contacte',
+    priorite: 'normal',
+    source: 'Hunter.io',
+    notes: 'IT Recruiter agence Est/Grand Est. DEMANDE CONNEXION LINKEDIN envoyée le 20/02/2026 (angle networking/élargir réseau recruteurs IT). Contact backup géographique.',
+    objectifs: [
+      { texte: 'Demande connexion LinkedIn networking', echeance: '2026-02-20', termine: true },
+      { texte: 'Attendre acceptation connexion', echeance: '2026-02-27', termine: false },
+      { texte: 'Si acceptée: demander contacts région Nord', echeance: '2026-03-01', termine: false }
+    ],
+    createdAt: '2026-02-20T16:35:00Z',
+    updatedAt: '2026-02-20T18:04:00Z'
+  },
+  {
+    id: 'contact-romain-huot-securinfor',
+    nom: 'Romain Huot',
+    role: 'Security Infrastructure Administrator',
+    entreprise: 'SECURINFOR',
+    ville: 'Wasquehal',
+    email: 'romain.huot@securinfor.fr',
+    telephone: '',
+    linkedin: 'https://www.linkedin.com/in/romain-huot-7935b3305',
+    statut: 'contacte',
+    priorite: 'important',
+    source: 'Hunter.io',
+    notes: 'Admin infra sécurisées chez SECURINFOR. DEMANDE CONNEXION LINKEDIN envoyée le 20/02/2026 (networking technique, retour expérience équipe). Candidature déjà envoyée pour Technicien Proximité.',
+    objectifs: [
+      { texte: 'Message LinkedIn networking technique', echeance: '2026-02-20', termine: true },
+      { texte: 'Attendre acceptation connexion LinkedIn', echeance: '2026-02-25', termine: false },
+      { texte: 'Si accepté: demander retour expérience équipe', echeance: '2026-02-27', termine: false }
+    ],
+    createdAt: '2026-02-20T18:20:00Z',
+    updatedAt: '2026-02-20T18:27:00Z'
+  },
+  {
+    id: 'contact-olivier-trenquier-securinfor',
+    nom: 'Olivier Trenquier',
+    role: 'Deputy General Manager',
+    entreprise: 'SECURINFOR',
+    ville: 'Wasquehal',
+    email: 'olivier.trenquier@securinfor.fr',
+    telephone: '',
+    linkedin: 'https://www.linkedin.com/in/otrenquier',
+    statut: 'a-contacter',
+    priorite: 'normal',
+    source: 'Hunter.io',
+    notes: 'Directeur général adjoint SECURINFOR. Contact trop senior pour approche directe candidature technicien. Backup si recommandation via Romain Huot.',
+    objectifs: [
+      { texte: 'Contact via Romain Huot si opportunité', echeance: '2026-02-28', termine: false }
+    ],
+    createdAt: '2026-02-20T18:20:00Z',
+    updatedAt: '2026-02-20T18:20:00Z'
+  },
+  {
+    id: 'contact-damien-paquin-securinfor',
+    nom: 'Damien Paquin',
+    role: 'IT Technician',
+    entreprise: 'SECURINFOR',
+    ville: 'Wasquehal',
+    email: 'damien.paquin@securinfor.fr',
+    telephone: '',
+    linkedin: 'https://www.linkedin.com/in/damien-paquin-3472091b9',
+    statut: 'a-contacter',
+    priorite: 'normal',
+    source: 'Hunter.io',
+    notes: 'Technicien informatique SECURINFOR. Même niveau, bon contact networking entre pairs. Backup pour networking technique.',
+    objectifs: [
+      { texte: 'LinkedIn si pas de réponse de Romain', echeance: '2026-02-25', termine: false }
+    ],
+    createdAt: '2026-02-20T18:20:00Z',
+    updatedAt: '2026-02-20T18:20:00Z'
+  },
+  {
+    id: 'contact-olivier-verdier-securinfor',
+    nom: 'Olivier Verdier',
+    role: 'IT Technician',
+    entreprise: 'SECURINFOR',
+    ville: 'Wasquehal',
+    email: 'olivier.verdier@securinfor.fr',
+    telephone: '',
+    linkedin: 'https://www.linkedin.com/in/olivier-verdier-22685564',
+    statut: 'a-contacter',
+    priorite: 'normal',
+    source: 'Hunter.io',
+    notes: 'Technicien informatique SECURINFOR. Même niveau, contact networking entre pairs. Backup networking.',
+    objectifs: [
+      { texte: 'LinkedIn si opportunité networking', echeance: '2026-02-28', termine: false }
+    ],
+    createdAt: '2026-02-20T18:20:00Z',
+    updatedAt: '2026-02-20T18:20:00Z'
+  }
+];
+
+// === TAB SWITCHING ===
+
+function switchTab(tab, element) {
+  // Update active tab
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (element) element.classList.add('active');
+  
+  // Update active section
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(`section-${tab}`).classList.add('active');
+  
+  // Render appropriate content
+  if (tab === 'candidatures') {
+    renderStats();
+    renderTable();
+  } else if (tab === 'esn') {
+    renderEsnStats();
+    renderEsnGrid();
+  } else if (tab === 'contacts') {
+    renderContactsStats();
+    renderContactsGrid();
+  }
+}
+
+// INIT — load data then try to restore file handle
+initData().then(() => {
+  restoreFileHandle();
+  initEsnData();
+  initContactsData();
+});
+</script>
+
 </body>
 </html>
