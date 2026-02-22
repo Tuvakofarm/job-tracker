@@ -1482,11 +1482,11 @@ async function hunterQuota() {
 }
 
 const ESN_SEED_DATA = [
-  {"id":"esn-helpline","nom":"HELPLINE","type":"esn","priorite":"new","site":"https://www.helpline.fr","carrieres":"https://www.helpline.fr/nous-rejoindre","ville":"Marcq-en-Barœul (59)","specialites":"Support applicatif, Infogérance, Proximité","linkedin":"https://www.linkedin.com/company/helpline/","contacts":[],"notes":"ESN spécialisée support/infogérance. Candidature envoyée pour poste Support Retail.","candidatureIds":["hw-helpline-retail"]},
+  {"id":"esn-helpline","nom":"HELPLINE","type":"esn","priorite":"new","site":"https://www.helpline.fr","carrieres":"https://www.helpline.fr/nous-rejoindre","ville":"Marcq-en-Barœul (59)","specialites":"Support applicatif, Infogérance, Proximité","linkedin":"https://www.linkedin.com/company/helpline/","contacts":[],"contactRefIds":["contact-isabelle-neri-helpline"],"notes":"ESN spécialisée support/infogérance. Candidature envoyée pour poste Support Retail.","candidatureIds":["hw-helpline-retail"]},
   {"id":"esn-osmozium","nom":"OSMOZIUM","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Support N1, Infogérance retail","linkedin":"","contacts":[],"notes":"ESN. Support N1 réseau magasins + siège. 7j/7 roulement.","candidatureIds":["hw-osmozium"]},
-  {"id":"esn-securinfor","nom":"Securinfor","type":"esn","priorite":"new","site":"https://www.securinfor.com","carrieres":"","ville":"Wasquehal (59)","specialites":"Support proximité, Infogérance","linkedin":"","contacts":[],"notes":"ESN. Support proximité N1/N2, gestion parc, ticketing.","candidatureIds":["hw-securinfor"]},
+  {"id":"esn-securinfor","nom":"Securinfor","type":"esn","priorite":"new","site":"https://www.securinfor.com","carrieres":"","ville":"Wasquehal (59)","specialites":"Support proximité, Infogérance","linkedin":"","contacts":[],"contactRefIds":["contact-romain-huot-securinfor","contact-olivier-trenquier-securinfor","contact-damien-paquin-securinfor","contact-olivier-verdier-securinfor"],"notes":"ESN. Support proximité N1/N2, gestion parc, ticketing.","candidatureIds":["hw-securinfor"]},
   {"id":"esn-astek","nom":"Astek / Tekneum","type":"esn","priorite":"new","site":"https://www.astek.fr","carrieres":"https://www.astek.fr/offres","ville":"Lille (59)","specialites":"Support N1/N2, Proximité, VIP, Infrastructure","linkedin":"https://www.linkedin.com/company/astek/","contacts":[],"notes":"Grand groupe ESN. Deux candidatures.","candidatureIds":["hw-astek","linkedin-tekneum-astek"]},
-  {"id":"esn-econocom","nom":"Econocom","type":"esn","priorite":"new","site":"https://www.econocom.com","carrieres":"https://www.econocom.com/fr/carrieres","ville":"Lille (59)","specialites":"Support utilisateurs, Digital workplace","linkedin":"https://www.linkedin.com/company/econocom/","contacts":[],"notes":"Grand groupe.","candidatureIds":["hw-econocom"]},
+  {"id":"esn-econocom","nom":"Econocom","type":"esn","priorite":"new","site":"https://www.econocom.com","carrieres":"https://www.econocom.com/fr/carrieres","ville":"Lille (59)","specialites":"Support utilisateurs, Digital workplace","linkedin":"https://www.linkedin.com/company/econocom/","contacts":[],"contactRefIds":["contact-fatia-makhloufi-econocom"],"notes":"Grand groupe.","candidatureIds":["hw-econocom"]},
   {"id":"esn-draks","nom":"Draks","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Support utilisateurs","linkedin":"","contacts":[],"notes":"ESN.","candidatureIds":["hw-draks"]},
   {"id":"esn-actual-talent","nom":"Actual Talent (ex Up Skills)","type":"interim","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Helpdesk, Support proximité","linkedin":"","contacts":[],"notes":"Intérim/recrutement IT.","candidatureIds":["hw-actual-talent","hw-actual-talent-proxi"]},
   {"id":"esn-reproit","nom":"REPRO-IT (Groupe IT & You)","type":"esn","priorite":"new","site":"","carrieres":"","ville":"Lille (59)","specialites":"Helpdesk, VoIP, Support N1/N2","linkedin":"","contacts":[],"notes":"ESN groupe IT & You.","candidatureIds":["hw-reproit"]},
@@ -1528,16 +1528,45 @@ const ESN_SEED_DATA = [
 ];
 
 async function initEsnData() {
-  // Load localStorage first (has user edits like Michael Page)
+  // Load localStorage first (has user edits)
   const localData = JSON.parse(localStorage.getItem('esn-directory') || '[]');
 
+  // Also try loading esn-data.json for contactRefIds and new entries
+  let fileData = [];
+  try {
+    const resp = await fetch('esn-data.json');
+    if (resp.ok) fileData = await resp.json();
+  } catch(e) { console.warn('esn-data.json non chargé:', e); }
+
+  // Build a seed map from both ESN_SEED_DATA and esn-data.json (file wins)
+  const seedMap = new Map();
+  for (const entry of ESN_SEED_DATA) seedMap.set(entry.id, entry);
+  for (const entry of fileData) seedMap.set(entry.id, entry);
+  const mergedSeed = [...seedMap.values()];
+
   if (localData.length > 0) {
-    // Merge: localStorage wins, seed adds new entries by ID + name
+    // Merge: localStorage wins for existing, seed adds new entries
     const localIds = new Set(localData.map(e => e.id));
     const localNames = new Set(localData.map(e => e.nom.toLowerCase()));
     esnData = [...localData];
+
+    // Sync contactRefIds from seed/file into localStorage entries
+    const seedById = new Map(mergedSeed.map(e => [e.id, e]));
+    for (const entry of esnData) {
+      const seed = seedById.get(entry.id);
+      if (seed && seed.contactRefIds && seed.contactRefIds.length > 0) {
+        // Merge: add seed refs not already present
+        const existing = new Set(entry.contactRefIds || []);
+        const merged = [...(entry.contactRefIds || [])];
+        for (const refId of seed.contactRefIds) {
+          if (!existing.has(refId)) merged.push(refId);
+        }
+        entry.contactRefIds = merged;
+      }
+    }
+
     let added = 0;
-    for (const entry of ESN_SEED_DATA) {
+    for (const entry of mergedSeed) {
       if (!localIds.has(entry.id) && !localNames.has(entry.nom.toLowerCase())) {
         esnData.push(entry);
         added++;
@@ -1545,7 +1574,7 @@ async function initEsnData() {
     }
     if (added > 0) toast(`📥 ${added} nouvelles fiches ajoutées au Réseau Pro`);
   } else {
-    esnData = [...ESN_SEED_DATA];
+    esnData = [...mergedSeed];
   }
 
   // Auto-detect ESN from candidatures
@@ -2004,10 +2033,46 @@ let contactsData = [];
 let contactsFilter = 'all';
 let objectifFieldCount = 0;
 
-function initContactsData() {
+async function initContactsData() {
   try {
-    // Force reload from CONTACTS_SEED_DATA to apply updates
-    contactsData = [...CONTACTS_SEED_DATA];
+    // Load from contacts-data.json (source of truth, versioned in git)
+    let fileContacts = [];
+    try {
+      const resp = await fetch('contacts-data.json');
+      if (resp.ok) fileContacts = await resp.json();
+    } catch(e) { console.warn('contacts-data.json non chargé:', e); }
+
+    // Build seed map: file data wins over inline SEED_DATA
+    const seedMap = new Map();
+    for (const c of CONTACTS_SEED_DATA) seedMap.set(c.id, c);
+    for (const c of fileContacts) seedMap.set(c.id, c);
+    const mergedSeed = [...seedMap.values()];
+
+    // Load localStorage (has user modifications)
+    const localData = JSON.parse(localStorage.getItem('jobtracker-contacts') || '[]');
+
+    if (localData.length > 0) {
+      const localIds = new Set(localData.map(c => c.id));
+      contactsData = [...localData];
+      let added = 0;
+      for (const c of mergedSeed) {
+        if (!localIds.has(c.id)) {
+          contactsData.push(c);
+          added++;
+        }
+      }
+      // Update existing entries with seed data if they haven't been modified by user
+      for (let i = 0; i < contactsData.length; i++) {
+        const seed = seedMap.get(contactsData[i].id);
+        if (seed && contactsData[i].updatedAt === seed.updatedAt) {
+          contactsData[i] = { ...seed };
+        }
+      }
+      if (added > 0) toast(`📥 ${added} nouveaux contacts RH ajoutés`);
+    } else {
+      contactsData = [...mergedSeed];
+    }
+
     saveContactsData();
     renderContactsStats();
     renderContactsGrid();
@@ -2486,10 +2551,10 @@ function switchTab(tab, element) {
 }
 
 // INIT — load data then try to restore file handle
-initData().then(() => {
+initData().then(async () => {
   restoreFileHandle();
-  initEsnData();
-  initContactsData();
+  await initEsnData();
+  await initContactsData();
 });
 </script>
 

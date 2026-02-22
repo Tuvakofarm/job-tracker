@@ -1,0 +1,164 @@
+[
+  {
+    "id": "contact-bruno-vincent-netim",
+    "nom": "Bruno VINCENT",
+    "role": "CEO & founder",
+    "entreprise": "NETIM",
+    "ville": "Lille",
+    "email": "bruno.vincent@netim.com",
+    "telephone": "",
+    "linkedin": "https://www.linkedin.com/in/bruno-vincent-6b5261109",
+    "statut": "rdv",
+    "priorite": "urgent",
+    "source": "Hunter.io + Réponse reçue par email",
+    "notes": "CEO NETIM qui a répondu personnellement ! RÉPONSE ENVOYÉE via Indeed le 20/02/2026. Contact direct excellent établi.",
+    "objectifs": [
+      { "texte": "Répondre à son email via Indeed", "echeance": "2026-02-20", "termine": true },
+      { "texte": "Attendre suite de sa part", "echeance": "2026-02-25", "termine": false },
+      { "texte": "Programmer entretien si suite positive", "echeance": "2026-02-27", "termine": false }
+    ],
+    "createdAt": "2026-02-20T16:35:00Z",
+    "updatedAt": "2026-02-20T18:50:00Z"
+  },
+  {
+    "id": "contact-isabelle-neri-helpline",
+    "nom": "Isabelle Néri",
+    "role": "Director of Talent Acquisition",
+    "entreprise": "HELPLINE",
+    "ville": "Marcq-en-Barœul",
+    "email": "isabelle.neri@helpline.fr",
+    "telephone": "",
+    "linkedin": "https://www.linkedin.com/in/isabelle-neri",
+    "statut": "contacte",
+    "priorite": "urgent",
+    "source": "Hunter.io",
+    "notes": "Directrice recrutement chez HELPLINE (ESN Retail). EMAIL ENVOYÉ le 20/02/2026 avec pitch candidature Support Retail. Professionnel et direct.",
+    "objectifs": [
+      { "texte": "Email de présentation candidature Retail", "echeance": "2026-02-20", "termine": true },
+      { "texte": "Relance si pas de réponse", "echeance": "2026-02-26", "termine": false },
+      { "texte": "Programmer échange téléphonique si réponse positive", "echeance": "2026-02-28", "termine": false }
+    ],
+    "createdAt": "2026-02-20T16:35:00Z",
+    "updatedAt": "2026-02-20T17:51:00Z"
+  },
+  {
+    "id": "contact-szymon-wroblewski-ovh",
+    "nom": "Szymon Wroblewski",
+    "role": "Senior Software Engineer (DevOps)",
+    "entreprise": "OVHcloud",
+    "ville": "Pologne (travaille pour OVH Roubaix)",
+    "email": "szymon.wroblewski@ovhcloud.com",
+    "telephone": "",
+    "linkedin": "https://www.linkedin.com/in/szymon-wroblewski-67251b59",
+    "statut": "contacte",
+    "priorite": "important",
+    "source": "Hunter.io",
+    "notes": "Senior DevOps Engineer chez OVHcloud, basé en Pologne. DEMANDE CONNEXION LINKEDIN envoyée le 20/02/2026 (message networking/conseil technique). Approche networking, pas candidature directe.",
+    "objectifs": [
+      { "texte": "Demande connexion LinkedIn en anglais", "echeance": "2026-02-20", "termine": true },
+      { "texte": "Attendre acceptation connexion", "echeance": "2026-02-25", "termine": false },
+      { "texte": "Si accepté: message conseil parcours DevOps", "echeance": "2026-02-27", "termine": false }
+    ],
+    "createdAt": "2026-02-20T16:35:00Z",
+    "updatedAt": "2026-02-20T18:01:00Z"
+  },
+  {
+    "id": "contact-fatia-makhloufi-econocom",
+    "nom": "Fatia Makhloufi",
+    "role": "IT Recruiter & Business Partner",
+    "entreprise": "Econocom",
+    "ville": "Région Est (mais contact backup)",
+    "email": "fatia.makhloufi@econocom.com",
+    "telephone": "",
+    "linkedin": "https://www.linkedin.com/in/fatia-makhloufi-602350186",
+    "statut": "contacte",
+    "priorite": "normal",
+    "source": "Hunter.io",
+    "notes": "IT Recruiter agence Est/Grand Est. DEMANDE CONNEXION LINKEDIN envoyée le 20/02/2026 (angle networking/élargir réseau recruteurs IT). Contact backup géographique.",
+    "objectifs": [
+      { "texte": "Demande connexion LinkedIn networking", "echeance": "2026-02-20", "termine": true },
+      { "texte": "Attendre acceptation connexion", "echeance": "2026-02-27", "termine": false },
+      { "texte": "Si acceptée: demander contacts région Nord", "echeance": "2026-03-01", "termine": false }
+    ],
+    "createdAt": "2026-02-20T16:35:00Z",
+    "updatedAt": "2026-02-20T18:04:00Z"
+  },
+  {
+    "id": "contact-romain-huot-securinfor",
+    "nom": "Romain Huot",
+    "role": "Security Infrastructure Administrator",
+    "entreprise": "SECURINFOR",
+    "ville": "Wasquehal",
+    "email": "romain.huot@securinfor.fr",
+    "telephone": "",
+    "linkedin": "https://www.linkedin.com/in/romain-huot-7935b3305",
+    "statut": "contacte",
+    "priorite": "important",
+    "source": "Hunter.io",
+    "notes": "Admin infra sécurisées chez SECURINFOR. DEMANDE CONNEXION LINKEDIN envoyée le 20/02/2026 (networking technique, retour expérience équipe). Candidature déjà envoyée pour Technicien Proximité.",
+    "objectifs": [
+      { "texte": "Message LinkedIn networking technique", "echeance": "2026-02-20", "termine": true },
+      { "texte": "Attendre acceptation connexion LinkedIn", "echeance": "2026-02-25", "termine": false },
+      { "texte": "Si accepté: demander retour expérience équipe", "echeance": "2026-02-27", "termine": false }
+    ],
+    "createdAt": "2026-02-20T18:20:00Z",
+    "updatedAt": "2026-02-20T18:27:00Z"
+  },
+  {
+    "id": "contact-olivier-trenquier-securinfor",
+    "nom": "Olivier Trenquier",
+    "role": "Deputy General Manager",
+    "entreprise": "SECURINFOR",
+    "ville": "Wasquehal",
+    "email": "olivier.trenquier@securinfor.fr",
+    "telephone": "",
+    "linkedin": "https://www.linkedin.com/in/otrenquier",
+    "statut": "a-contacter",
+    "priorite": "normal",
+    "source": "Hunter.io",
+    "notes": "Directeur général adjoint SECURINFOR. Contact trop senior pour approche directe candidature technicien. Backup si recommandation via Romain Huot.",
+    "objectifs": [
+      { "texte": "Contact via Romain Huot si opportunité", "echeance": "2026-02-28", "termine": false }
+    ],
+    "createdAt": "2026-02-20T18:20:00Z",
+    "updatedAt": "2026-02-20T18:20:00Z"
+  },
+  {
+    "id": "contact-damien-paquin-securinfor",
+    "nom": "Damien Paquin",
+    "role": "IT Technician",
+    "entreprise": "SECURINFOR",
+    "ville": "Wasquehal",
+    "email": "damien.paquin@securinfor.fr",
+    "telephone": "",
+    "linkedin": "https://www.linkedin.com/in/damien-paquin-3472091b9",
+    "statut": "a-contacter",
+    "priorite": "normal",
+    "source": "Hunter.io",
+    "notes": "Technicien informatique SECURINFOR. Même niveau, bon contact networking entre pairs. Backup pour networking technique.",
+    "objectifs": [
+      { "texte": "LinkedIn si pas de réponse de Romain", "echeance": "2026-02-25", "termine": false }
+    ],
+    "createdAt": "2026-02-20T18:20:00Z",
+    "updatedAt": "2026-02-20T18:20:00Z"
+  },
+  {
+    "id": "contact-olivier-verdier-securinfor",
+    "nom": "Olivier Verdier",
+    "role": "IT Technician",
+    "entreprise": "SECURINFOR",
+    "ville": "Wasquehal",
+    "email": "olivier.verdier@securinfor.fr",
+    "telephone": "",
+    "linkedin": "https://www.linkedin.com/in/olivier-verdier-22685564",
+    "statut": "a-contacter",
+    "priorite": "normal",
+    "source": "Hunter.io",
+    "notes": "Technicien informatique SECURINFOR. Même niveau, contact networking entre pairs. Backup networking.",
+    "objectifs": [
+      { "texte": "LinkedIn si opportunité networking", "echeance": "2026-02-28", "termine": false }
+    ],
+    "createdAt": "2026-02-20T18:20:00Z",
+    "updatedAt": "2026-02-20T18:20:00Z"
+  }
+]
