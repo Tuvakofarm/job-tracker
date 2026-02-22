@@ -528,6 +528,7 @@
     .esn-filters { padding: 12px 16px 0; }
   }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -918,6 +919,73 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// === SUPABASE INIT ===
+const SUPABASE_URL = 'https://pzwjjivxmepyvahvgsre.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6d2pqaXZ4bWVweXZhaHZnc3JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MjA2NjQsImV4cCI6MjA4NzI5NjY2NH0.oycHXG0_KEciZ3j05WFXaCKQCepxfbkElN0f7Er5cj8';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Mapper JS camelCase ↔ DB snake_case
+function toDbEsn(e) {
+  return {
+    id: e.id, nom: e.nom, type: e.type, priorite: e.priorite,
+    site: e.site, carrieres: e.carrieres, ville: e.ville,
+    specialites: e.specialites, linkedin: e.linkedin,
+    contacts: e.contacts || [],
+    contact_ref_ids: e.contactRefIds || [],
+    notes: e.notes, candidature_ids: e.candidatureIds || [],
+    created_at: e.createdAt, updated_at: e.updatedAt
+  };
+}
+function fromDbEsn(row) {
+  return {
+    id: row.id, nom: row.nom, type: row.type, priorite: row.priorite,
+    site: row.site, carrieres: row.carrieres, ville: row.ville,
+    specialites: row.specialites, linkedin: row.linkedin,
+    contacts: row.contacts || [],
+    contactRefIds: row.contact_ref_ids || [],
+    notes: row.notes, candidatureIds: row.candidature_ids || [],
+    createdAt: row.created_at, updatedAt: row.updated_at
+  };
+}
+function toDbContact(c) {
+  return {
+    id: c.id, nom: c.nom, role: c.role, entreprise: c.entreprise,
+    ville: c.ville, email: c.email, telephone: c.telephone,
+    linkedin: c.linkedin, statut: c.statut, priorite: c.priorite,
+    source: c.source, notes: c.notes, objectifs: c.objectifs || [],
+    created_at: c.createdAt, updated_at: c.updatedAt
+  };
+}
+function fromDbContact(row) {
+  return {
+    id: row.id, nom: row.nom, role: row.role, entreprise: row.entreprise,
+    ville: row.ville, email: row.email, telephone: row.telephone,
+    linkedin: row.linkedin, statut: row.statut, priorite: row.priorite,
+    source: row.source, notes: row.notes, objectifs: row.objectifs || [],
+    createdAt: row.created_at, updatedAt: row.updated_at
+  };
+}
+function toDbCandidature(c) {
+  return {
+    id: c.id, entreprise: c.entreprise, poste: c.poste,
+    contact: c.contact, source: c.source, date: c.date,
+    statut: c.statut, relance_date: c.relanceDate,
+    lieu: c.lieu, url: c.url, salaire: c.salaire,
+    notes: c.notes, history: c.history || [],
+    created_at: c.createdAt, updated_at: c.updatedAt
+  };
+}
+function fromDbCandidature(row) {
+  return {
+    id: row.id, entreprise: row.entreprise, poste: row.poste,
+    contact: row.contact, source: row.source, date: row.date,
+    statut: row.statut, relanceDate: row.relance_date,
+    lieu: row.lieu, url: row.url, salaire: row.salaire,
+    notes: row.notes, history: row.history || [],
+    createdAt: row.created_at, updatedAt: row.updated_at
+  };
+}
+
 // DATA — persistent via File System Access API (data.json)
 let data = [];
 let fileHandle = null;
@@ -934,12 +1002,29 @@ async function save() {
       await writable.close();
     } catch(e) { console.warn('File save failed, localStorage OK:', e); }
   }
+  // Sync to Supabase
+  try {
+    const dbRows = data.map(toDbCandidature);
+    await supabase.from('candidatures').upsert(dbRows, { onConflict: 'id' });
+  } catch(e) { console.warn('Supabase sync candidatures error:', e); }
   renderStats();
   renderTable();
 }
 
 // Load from data.json (same directory as tracker.html)
 async function initData() {
+  // Try Supabase first
+  try {
+    const { data: dbData, error } = await supabase.from('candidatures').select('*');
+    if (!error && dbData && dbData.length > 0) {
+      data = dbData.map(fromDbCandidature);
+      localStorage.setItem('jobtracker', JSON.stringify(data));
+      renderStats();
+      renderTable();
+      return; // Supabase is source of truth
+    }
+  } catch(e) { console.warn('Supabase load candidatures error:', e); }
+
   // Try loading data.json from same folder
   try {
     const resp = await fetch('data.json');
@@ -1269,6 +1354,9 @@ function deleteEntry() {
   const id = document.getElementById('editId').value;
   if (!id || !confirm('Supprimer cette candidature ?')) return;
   data = data.filter(d => d.id !== id);
+  supabase.from('candidatures').delete().eq('id', id).then(({error}) => {
+    if (error) console.warn('Supabase delete candidature error:', error);
+  });
   save();
   closeModal();
   toast('🗑️ Candidature supprimée', 'var(--red)');
@@ -1359,10 +1447,11 @@ let esnFilter = 'all';
 
 async function saveEsnData() {
   localStorage.setItem('esn-directory', JSON.stringify(esnData));
-  if (fileHandle) {
-    // Save ESN alongside candidatures in a combined export? No — separate file
-    // ESN uses its own localStorage key, we'll also try esn-data.json
-  }
+  // Sync to Supabase
+  try {
+    const dbRows = esnData.map(toDbEsn);
+    await supabase.from('esn').upsert(dbRows, { onConflict: 'id' });
+  } catch(e) { console.warn('Supabase sync esn error:', e); }
   updateTabCounts();
   renderEsnStats();
   renderEsnGrid();
@@ -1528,6 +1617,20 @@ const ESN_SEED_DATA = [
 ];
 
 async function initEsnData() {
+  // Try Supabase first
+  try {
+    const { data: dbData, error } = await supabase.from('esn').select('*');
+    if (!error && dbData && dbData.length > 0) {
+      esnData = dbData.map(fromDbEsn);
+      localStorage.setItem('esn-directory', JSON.stringify(esnData));
+      autoDetectEsn();
+      updateTabCounts();
+      renderEsnStats();
+      renderEsnGrid();
+      return; // Supabase is source of truth
+    }
+  } catch(e) { console.warn('Supabase load esn error:', e); }
+
   // Load localStorage first (has user edits)
   const localData = JSON.parse(localStorage.getItem('esn-directory') || '[]');
 
@@ -2002,6 +2105,9 @@ function deleteEsn() {
   const id = document.getElementById('esnEditId').value;
   if (!id || !confirm('Supprimer cette ESN ?')) return;
   esnData = esnData.filter(e => e.id !== id);
+  supabase.from('esn').delete().eq('id', id).then(({error}) => {
+    if (error) console.warn('Supabase delete esn error:', error);
+  });
   saveEsnData();
   closeEsnModal();
   toast('🗑️ ESN supprimée', 'var(--red)');
@@ -2035,6 +2141,18 @@ let objectifFieldCount = 0;
 
 async function initContactsData() {
   try {
+    // Try Supabase first
+    try {
+      const { data: dbData, error } = await supabase.from('contacts_rh').select('*');
+      if (!error && dbData && dbData.length > 0) {
+        contactsData = dbData.map(fromDbContact);
+        localStorage.setItem('jobtracker-contacts', JSON.stringify(contactsData));
+        renderContactsStats();
+        renderContactsGrid();
+        return; // Supabase is source of truth
+      }
+    } catch(e) { console.warn('Supabase load contacts error:', e); }
+
     // Load from contacts-data.json (source of truth, versioned in git)
     let fileContacts = [];
     try {
@@ -2086,6 +2204,11 @@ async function initContactsData() {
 function saveContactsData() {
   try {
     localStorage.setItem('jobtracker-contacts', JSON.stringify(contactsData));
+    // Sync to Supabase
+    const dbRows = contactsData.map(toDbContact);
+    supabase.from('contacts_rh').upsert(dbRows, { onConflict: 'id' }).then(({error}) => {
+      if (error) console.warn('Supabase sync contacts error:', error);
+    });
   } catch(e) {
     console.error('Erreur sauvegarde contacts:', e);
   }
@@ -2344,6 +2467,9 @@ function deleteContact() {
   const id = document.getElementById('contactEditId').value;
   if (!id || !confirm('Supprimer ce contact ?')) return;
   contactsData = contactsData.filter(c => c.id !== id);
+  supabase.from('contacts_rh').delete().eq('id', id).then(({error}) => {
+    if (error) console.warn('Supabase delete contact error:', error);
+  });
   // Nettoyer les références dans les ESN
   let cleaned = 0;
   esnData.forEach(e => {
