@@ -527,6 +527,14 @@
     .esn-stats-bar { padding: 16px 16px 0; }
     .esn-filters { padding: 12px 16px 0; }
   }
+
+  /* === LOCK MODE === */
+  .lock-btn { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 1rem; color: var(--text); transition: all .2s; }
+  .lock-btn:hover { border-color: var(--accent); }
+  .lock-btn.unlocked { border-color: var(--green); color: var(--green); }
+  body.locked .edit-action { display: none !important; }
+  body.locked .modal input, body.locked .modal select, body.locked .modal textarea { pointer-events: none; opacity: 0.7; }
+  body.locked .modal .btn-secondary[onclick*="addContactField"], body.locked .modal .btn-secondary[onclick*="addObjectifField"] { display: none !important; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -535,11 +543,12 @@
 <div class="header">
   <h1><span>😈</span> Job Tracker</h1>
   <div class="header-actions">
+    <button class="lock-btn" id="lockBtn" onclick="toggleLock()" title="Déverrouiller pour modifier">🔒</button>
     <button class="btn btn-secondary" onclick="hunterQuota()" title="Voir quota Hunter.io">🔍 Quota</button>
     <button class="btn btn-secondary" onclick="connectFile()" id="connectBtn">🔗 Connecter fichier</button>
     <button class="btn btn-secondary" onclick="exportData()">📤 Exporter</button>
-    <button class="btn btn-secondary" onclick="importData()">📥 Importer</button>
-    <button class="btn btn-primary" onclick="openModal()">+ Candidature</button>
+    <button class="btn btn-secondary edit-action" onclick="importData()">📥 Importer</button>
+    <button class="btn btn-primary edit-action" onclick="openModal()">+ Candidature</button>
   </div>
 </div>
 
@@ -608,8 +617,8 @@
     <button class="filter-btn" data-esn-filter="cold" onclick="setEsnFilter('cold', this)">⚪ Cold</button>
     <div style="flex:1"></div>
     <button class="btn btn-secondary" onclick="exportEsnData()">📤 Exporter</button>
-    <button class="btn btn-secondary" onclick="importEsnData()">📥 Importer</button>
-    <button class="btn btn-primary" onclick="openEsnModal()">+ Ajouter</button>
+    <button class="btn btn-secondary edit-action" onclick="importEsnData()">📥 Importer</button>
+    <button class="btn btn-primary edit-action" onclick="openEsnModal()">+ Ajouter</button>
   </div>
   <div class="esn-grid" id="esnGrid"></div>
   <div class="empty-state" id="esnEmptyState" style="display:none;">
@@ -635,8 +644,8 @@
     <button class="filter-btn" data-contacts-filter="priorite-normal" onclick="setContactsFilter('priorite-normal', this)">🟡 Normal</button>
     <div style="flex:1"></div>
     <button class="btn btn-secondary" onclick="exportContactsData()">📤 Exporter</button>
-    <button class="btn btn-secondary" onclick="importContactsData()">📥 Importer</button>
-    <button class="btn btn-primary" onclick="openContactModal()">+ Ajouter Contact</button>
+    <button class="btn btn-secondary edit-action" onclick="importContactsData()">📥 Importer</button>
+    <button class="btn btn-primary edit-action" onclick="openContactModal()">+ Ajouter Contact</button>
   </div>
   <div class="esn-grid" id="contactsGrid"></div>
   <div class="empty-state" id="contactsEmptyState" style="display:none;">
@@ -707,9 +716,9 @@
     <div style="margin-top:20px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
       <label style="font-size:0.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;">Contacts recrutement</label>
       <div style="display:flex;gap:6px;">
-        <button class="btn btn-small btn-secondary" onclick="const id=document.getElementById('esnEditId').value; if(id) hunterSearch(id);" title="Chercher via Hunter.io">🔍 Hunter</button>
-        <button class="btn btn-small btn-secondary" onclick="showLinkContactRH()" title="Lier un contact RH existant">🔗 Lier contact RH</button>
-        <button class="btn btn-small btn-secondary" onclick="addContactField()">+ Contact</button>
+        <button class="btn btn-small btn-secondary edit-action" onclick="const id=document.getElementById('esnEditId').value; if(id) hunterSearch(id);" title="Chercher via Hunter.io">🔍 Hunter</button>
+        <button class="btn btn-small btn-secondary edit-action" onclick="showLinkContactRH()" title="Lier un contact RH existant">🔗 Lier contact RH</button>
+        <button class="btn btn-small btn-secondary edit-action" onclick="addContactField()">+ Contact</button>
       </div>
     </div>
 
@@ -732,8 +741,8 @@
 
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeEsnModal()">Annuler</button>
-      <button class="btn btn-danger btn-small" id="esnDeleteBtn" onclick="deleteEsn()" style="display:none;">🗑️ Supprimer</button>
-      <button class="btn btn-primary" onclick="saveEsn()">💾 Sauvegarder</button>
+      <button class="btn btn-danger btn-small edit-action" id="esnDeleteBtn" onclick="deleteEsn()" style="display:none;">🗑️ Supprimer</button>
+      <button class="btn btn-primary edit-action" onclick="saveEsn()">💾 Sauvegarder</button>
     </div>
   </div>
 </div>
@@ -818,12 +827,12 @@
       <label style="font-size:0.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;">🎯 Objectifs & Actions</label>
     </div>
     <div id="objectifsList"></div>
-    <button class="btn btn-small btn-secondary" onclick="addObjectifField()" style="margin-bottom: 16px;">+ Ajouter objectif</button>
+    <button class="btn btn-small btn-secondary edit-action" onclick="addObjectifField()" style="margin-bottom: 16px;">+ Ajouter objectif</button>
 
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeContactModal()">Annuler</button>
-      <button class="btn btn-danger btn-small" id="contactDeleteBtn" onclick="deleteContact()" style="display:none;">🗑️ Supprimer</button>
-      <button class="btn btn-primary" onclick="saveContact()">💾 Sauvegarder</button>
+      <button class="btn btn-danger btn-small edit-action" id="contactDeleteBtn" onclick="deleteContact()" style="display:none;">🗑️ Supprimer</button>
+      <button class="btn btn-primary edit-action" onclick="saveContact()">💾 Sauvegarder</button>
     </div>
   </div>
 </div>
@@ -913,8 +922,8 @@
 
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
-      <button class="btn btn-danger btn-small" id="deleteBtn" onclick="deleteEntry()" style="display:none;">🗑️ Supprimer</button>
-      <button class="btn btn-primary" onclick="saveEntry()">💾 Sauvegarder</button>
+      <button class="btn btn-danger btn-small edit-action" id="deleteBtn" onclick="deleteEntry()" style="display:none;">🗑️ Supprimer</button>
+      <button class="btn btn-primary edit-action" onclick="saveEntry()">💾 Sauvegarder</button>
     </div>
   </div>
 </div>
@@ -926,7 +935,50 @@
 // === SUPABASE INIT ===
 const SUPABASE_URL = 'https://pzwjjivxmepyvahvgsre.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6d2pqaXZ4bWVweXZhaHZnc3JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MjA2NjQsImV4cCI6MjA4NzI5NjY2NH0.oycHXG0_KEciZ3j05WFXaCKQCepxfbkElN0f7Er5cj8';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let sb = null;
+try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) { console.warn('Supabase SDK non chargé, mode offline:', e); }
+
+// === LOCK MODE ===
+const EDIT_HASH = '97d58e724506f2388a3acfcca1e51886f161d6a89fbf3a65a3d434a4ceaac7c7';
+let editUnlocked = sessionStorage.getItem('edit-unlocked') === '1';
+
+async function sha256(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function toggleLock() {
+  if (editUnlocked) {
+    editUnlocked = false;
+    sessionStorage.removeItem('edit-unlocked');
+    applyLockState();
+    toast('🔒 Mode lecture');
+    return;
+  }
+  const pwd = prompt('Mot de passe pour déverrouiller :');
+  if (!pwd) return;
+  const hash = await sha256(pwd);
+  if (hash === EDIT_HASH) {
+    editUnlocked = true;
+    sessionStorage.setItem('edit-unlocked', '1');
+    applyLockState();
+    toast('🔓 Mode édition activé');
+  } else {
+    toast('❌ Mot de passe incorrect', 'var(--red)');
+  }
+}
+
+function applyLockState() {
+  document.body.classList.toggle('locked', !editUnlocked);
+  const btn = document.getElementById('lockBtn');
+  if (btn) {
+    btn.textContent = editUnlocked ? '🔓' : '🔒';
+    btn.title = editUnlocked ? 'Verrouiller (mode lecture)' : 'Déverrouiller pour modifier';
+    btn.classList.toggle('unlocked', editUnlocked);
+  }
+}
+
+function isLocked() { return !editUnlocked; }
 
 // Mapper JS camelCase ↔ DB snake_case
 function toDbEsn(e) {
@@ -1007,9 +1059,9 @@ async function save() {
     } catch(e) { console.warn('File save failed, localStorage OK:', e); }
   }
   // Sync to Supabase
-  try {
+  if (sb) try {
     const dbRows = data.map(toDbCandidature);
-    await supabase.from('candidatures').upsert(dbRows, { onConflict: 'id' });
+    await sb.from('candidatures').upsert(dbRows, { onConflict: 'id' });
   } catch(e) { console.warn('Supabase sync candidatures error:', e); }
   renderStats();
   renderTable();
@@ -1018,8 +1070,8 @@ async function save() {
 // Load from data.json (same directory as tracker.html)
 async function initData() {
   // Try Supabase first
-  try {
-    const { data: dbData, error } = await supabase.from('candidatures').select('*');
+  if (sb) try {
+    const { data: dbData, error } = await sb.from('candidatures').select('*');
     if (!error && dbData && dbData.length > 0) {
       data = dbData.map(fromDbCandidature);
       localStorage.setItem('jobtracker', JSON.stringify(data));
@@ -1216,8 +1268,8 @@ function renderTable() {
       <td>${relanceHtml}</td>
       <td title="${esc(d.notes)}">${esc(truncate(d.notes, 40))}</td>
       <td class="actions-cell">
-        <button class="btn btn-icon btn-small btn-secondary" onclick="openModal('${d.id}')" title="Modifier">✏️</button>
-        <button class="btn btn-icon btn-small btn-secondary" onclick="quickRelance('${d.id}')" title="Marquer relancé">🔄</button>
+        <button class="btn btn-icon btn-small btn-secondary edit-action" onclick="openModal('${d.id}')" title="Modifier">✏️</button>
+        <button class="btn btn-icon btn-small btn-secondary edit-action" onclick="quickRelance('${d.id}')" title="Marquer relancé">🔄</button>
       </td>
     </tr>`;
   }).join('');
@@ -1358,7 +1410,7 @@ function deleteEntry() {
   const id = document.getElementById('editId').value;
   if (!id || !confirm('Supprimer cette candidature ?')) return;
   data = data.filter(d => d.id !== id);
-  supabase.from('candidatures').delete().eq('id', id).then(({error}) => {
+  if (sb) sb.from('candidatures').delete().eq('id', id).then(({error}) => {
     if (error) console.warn('Supabase delete candidature error:', error);
   });
   save();
@@ -1509,9 +1561,9 @@ let esnFilter = 'all';
 async function saveEsnData() {
   localStorage.setItem('esn-directory', JSON.stringify(esnData));
   // Sync to Supabase
-  try {
+  if (sb) try {
     const dbRows = esnData.map(toDbEsn);
-    await supabase.from('esn').upsert(dbRows, { onConflict: 'id' });
+    await sb.from('esn').upsert(dbRows, { onConflict: 'id' });
   } catch(e) { console.warn('Supabase sync esn error:', e); }
   updateTabCounts();
   renderEsnStats();
@@ -1679,8 +1731,8 @@ const ESN_SEED_DATA = [
 
 async function initEsnData() {
   // Try Supabase first
-  try {
-    const { data: dbData, error } = await supabase.from('esn').select('*');
+  if (sb) try {
+    const { data: dbData, error } = await sb.from('esn').select('*');
     if (!error && dbData && dbData.length > 0) {
       esnData = dbData.map(fromDbEsn);
       localStorage.setItem('esn-directory', JSON.stringify(esnData));
@@ -1931,7 +1983,7 @@ function renderEsnGrid() {
       ${linkedCount > 0 ? `<div class="esn-candidatures-count">📋 ${linkedCount} candidature${linkedCount > 1 ? 's' : ''} liée${linkedCount > 1 ? 's' : ''}</div>` : ''}
       ${e.notes ? `<div class="esn-notes">${esc(truncate(e.notes, 120))}</div>` : ''}
       <div style="margin-top:10px;display:flex;gap:6px;">
-        <button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); hunterSearch('${e.id}')" title="Chercher contacts via Hunter.io">🔍 Hunter</button>
+        <button class="btn btn-small btn-secondary edit-action" onclick="event.stopPropagation(); hunterSearch('${e.id}')" title="Chercher contacts via Hunter.io">🔍 Hunter</button>
       </div>
     </div>`;
   }).join('');
@@ -2166,7 +2218,7 @@ function deleteEsn() {
   const id = document.getElementById('esnEditId').value;
   if (!id || !confirm('Supprimer cette ESN ?')) return;
   esnData = esnData.filter(e => e.id !== id);
-  supabase.from('esn').delete().eq('id', id).then(({error}) => {
+  if (sb) sb.from('esn').delete().eq('id', id).then(({error}) => {
     if (error) console.warn('Supabase delete esn error:', error);
   });
   saveEsnData();
@@ -2203,8 +2255,8 @@ let objectifFieldCount = 0;
 async function initContactsData() {
   try {
     // Try Supabase first
-    try {
-      const { data: dbData, error } = await supabase.from('contacts_rh').select('*');
+    if (sb) try {
+      const { data: dbData, error } = await sb.from('contacts_rh').select('*');
       if (!error && dbData && dbData.length > 0) {
         contactsData = dbData.map(fromDbContact);
         localStorage.setItem('jobtracker-contacts', JSON.stringify(contactsData));
@@ -2266,10 +2318,12 @@ function saveContactsData() {
   try {
     localStorage.setItem('jobtracker-contacts', JSON.stringify(contactsData));
     // Sync to Supabase
-    const dbRows = contactsData.map(toDbContact);
-    supabase.from('contacts_rh').upsert(dbRows, { onConflict: 'id' }).then(({error}) => {
-      if (error) console.warn('Supabase sync contacts error:', error);
-    });
+    if (sb) {
+      const dbRows = contactsData.map(toDbContact);
+      sb.from('contacts_rh').upsert(dbRows, { onConflict: 'id' }).then(({error}) => {
+        if (error) console.warn('Supabase sync contacts error:', error);
+      });
+    }
   } catch(e) {
     console.error('Erreur sauvegarde contacts:', e);
   }
@@ -2528,7 +2582,7 @@ function deleteContact() {
   const id = document.getElementById('contactEditId').value;
   if (!id || !confirm('Supprimer ce contact ?')) return;
   contactsData = contactsData.filter(c => c.id !== id);
-  supabase.from('contacts_rh').delete().eq('id', id).then(({error}) => {
+  if (sb) sb.from('contacts_rh').delete().eq('id', id).then(({error}) => {
     if (error) console.warn('Supabase delete contact error:', error);
   });
   // Nettoyer les références dans les ESN
@@ -2738,6 +2792,7 @@ function switchTab(tab, element) {
 }
 
 // INIT — load data then try to restore file handle
+applyLockState();
 initData().then(async () => {
   restoreFileHandle();
   await initEsnData();
