@@ -420,6 +420,67 @@
   }
   .esn-contact-channels a:hover { text-decoration: underline; }
 
+  .esn-contact-linked {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-left: 3px solid var(--accent);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .esn-contact-linked:hover { background: var(--bg2); }
+  .esn-contact-linked .rh-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.65rem;
+    color: var(--accent2);
+    background: rgba(99,102,241,0.15);
+    padding: 1px 7px;
+    border-radius: 10px;
+    margin-left: 6px;
+  }
+  .rh-autocomplete-container { position: relative; margin-bottom: 10px; }
+  .rh-autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+  }
+  .rh-autocomplete-dropdown.visible { display: block; }
+  .rh-autocomplete-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .rh-autocomplete-item:hover { background: var(--bg3); }
+  .rh-autocomplete-item .rh-item-company { font-size: 0.72rem; color: var(--text2); }
+  .esn-linked-ref {
+    background: rgba(99,102,241,0.08);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .esn-linked-ref-info { font-size: 0.82rem; }
+  .esn-linked-ref-info .ref-role { font-size: 0.72rem; color: var(--text2); }
+
   .esn-meta {
     display: flex;
     gap: 12px;
@@ -642,9 +703,21 @@
       <label style="font-size:0.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;">Contacts recrutement</label>
       <div style="display:flex;gap:6px;">
         <button class="btn btn-small btn-secondary" onclick="const id=document.getElementById('esnEditId').value; if(id) hunterSearch(id);" title="Chercher via Hunter.io">🔍 Hunter</button>
+        <button class="btn btn-small btn-secondary" onclick="showLinkContactRH()" title="Lier un contact RH existant">🔗 Lier contact RH</button>
         <button class="btn btn-small btn-secondary" onclick="addContactField()">+ Contact</button>
       </div>
     </div>
+
+    <!-- Contacts RH liés -->
+    <div id="esnLinkedContactsList"></div>
+
+    <!-- Autocomplete recherche contact RH -->
+    <div id="esnLinkContactContainer" class="rh-autocomplete-container" style="display:none;">
+      <input type="text" id="esnLinkContactSearch" class="search-input" style="width:100%;" placeholder="Chercher un contact RH par nom, entreprise..." oninput="filterContactRHAutocomplete(this.value)" onfocus="filterContactRHAutocomplete(this.value)">
+      <div id="esnLinkContactDropdown" class="rh-autocomplete-dropdown"></div>
+    </div>
+
+    <!-- Contacts inline -->
     <div id="esnContactsList"></div>
 
     <div class="form-group" style="margin-top:16px">
@@ -1539,9 +1612,19 @@ function renderEsnStats() {
   const countCabinet = esnData.filter(e => e.type === 'cabinet').length;
   const countInterim = esnData.filter(e => e.type === 'interim').length;
   const hot = esnData.filter(e => e.priorite === 'hot').length;
-  const withContact = esnData.filter(e => e.contacts && e.contacts.length > 0).length;
-  const withEmail = esnData.filter(e => e.contacts && e.contacts.some(c => c.email)).length;
-  const withPhone = esnData.filter(e => e.contacts && e.contacts.some(c => c.telephone)).length;
+  const withContact = esnData.filter(e =>
+    (e.contacts && e.contacts.length > 0) || (e.contactRefIds && e.contactRefIds.length > 0)
+  ).length;
+  const withEmail = esnData.filter(e => {
+    const hasInline = e.contacts && e.contacts.some(c => c.email);
+    const hasLinked = (e.contactRefIds || []).some(id => { const rc = contactsData.find(c => c.id === id); return rc && rc.email; });
+    return hasInline || hasLinked;
+  }).length;
+  const withPhone = esnData.filter(e => {
+    const hasInline = e.contacts && e.contacts.some(c => c.telephone);
+    const hasLinked = (e.contactRefIds || []).some(id => { const rc = contactsData.find(c => c.id === id); return rc && rc.telephone; });
+    return hasInline || hasLinked;
+  }).length;
 
   document.getElementById('esn-stats-bar').innerHTML = `
     <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total</div></div>
@@ -1568,7 +1651,8 @@ function renderEsnGrid() {
     if (esnFilter.startsWith('type-') && (e.type || 'esn') !== esnFilter.replace('type-', '')) return false;
     if (!esnFilter.startsWith('type-') && esnFilter !== 'all' && e.priorite !== esnFilter) return false;
     if (query) {
-      const hay = `${e.nom} ${e.ville} ${e.specialites} ${e.notes} ${(e.contacts||[]).map(c => `${c.nom} ${c.role} ${c.email} ${c.telephone}`).join(' ')}`.toLowerCase();
+      const linkedText = (e.contactRefIds || []).map(id => { const rc = contactsData.find(c => c.id === id); return rc ? `${rc.nom} ${rc.role} ${rc.email} ${rc.telephone} ${rc.entreprise}` : ''; }).join(' ');
+      const hay = `${e.nom} ${e.ville} ${e.specialites} ${e.notes} ${(e.contacts||[]).map(c => `${c.nom} ${c.role} ${c.email} ${c.telephone}`).join(' ')} ${linkedText}`.toLowerCase();
       if (!hay.includes(query)) return false;
     }
     return true;
@@ -1596,10 +1680,28 @@ function renderEsnGrid() {
     // Count linked candidatures
     const linkedCount = e.candidatureIds ? e.candidatureIds.length : 0;
 
-    // Render contacts
-    let contactsHtml = '';
-    if (e.contacts && e.contacts.length > 0) {
-      contactsHtml = `<div class="esn-contacts">${e.contacts.map(c => `
+    // Render contacts (liés RH + inline)
+    const linkedRefIds = e.contactRefIds || [];
+    const inlineContacts = e.contacts || [];
+    const statusIcons = {'a-contacter':'📧','contacte':'✅','rdv':'📅','suivi':'🔄','dead':'💀'};
+
+    const linkedHtml = linkedRefIds.map(refId => {
+      const c = contactsData.find(rc => rc.id === refId);
+      if (!c) return '';
+      return `
+        <div class="esn-contact-linked" onclick="event.stopPropagation(); openContactModal('${c.id}')">
+          <span class="esn-contact-name">${esc(c.nom)}${c.role ? ` — <span class="esn-contact-role">${esc(c.role)}</span>` : ''}
+            <span class="rh-badge">${statusIcons[c.statut] || ''} Fiche RH</span>
+          </span>
+          <div class="esn-contact-channels">
+            ${c.email ? `<a href="mailto:${esc(c.email)}" title="Email" onclick="event.stopPropagation()">📧 ${esc(c.email)}</a>` : ''}
+            ${c.telephone ? `<a href="tel:${esc(c.telephone)}" title="Téléphone" onclick="event.stopPropagation()">📞 ${esc(c.telephone)}</a>` : ''}
+            ${c.linkedin ? `<a href="${esc(c.linkedin)}" target="_blank" title="LinkedIn" onclick="event.stopPropagation()">💼 LinkedIn</a>` : ''}
+          </div>
+        </div>`;
+    }).filter(Boolean).join('');
+
+    const inlineHtml = inlineContacts.map(c => `
         <div class="esn-contact">
           <span class="esn-contact-name">${esc(c.nom)}${c.role ? ` — <span class="esn-contact-role">${esc(c.role)}</span>` : ''}</span>
           <div class="esn-contact-channels">
@@ -1608,7 +1710,11 @@ function renderEsnGrid() {
             ${c.linkedin ? `<a href="${esc(c.linkedin)}" target="_blank" title="LinkedIn">💼 LinkedIn</a>` : ''}
           </div>
         </div>
-      `).join('')}</div>`;
+    `).join('');
+
+    let contactsHtml = '';
+    if (linkedHtml || inlineHtml) {
+      contactsHtml = `<div class="esn-contacts">${linkedHtml}${inlineHtml}</div>`;
     } else {
       contactsHtml = '<div style="color:var(--text2);font-size:0.8rem;margin:8px 0;">⚠️ Aucun contact identifié</div>';
     }
@@ -1661,11 +1767,14 @@ function openEsnModal(id) {
     document.getElementById('esnSpecialites').value = entry.specialites || '';
     document.getElementById('esnLinkedin').value = entry.linkedin || '';
     document.getElementById('esnNotes').value = entry.notes || '';
-    // Contacts
+    // Contacts inline
     document.getElementById('esnContactsList').innerHTML = '';
     if (entry.contacts && entry.contacts.length > 0) {
       entry.contacts.forEach(c => addContactField(c));
     }
+    // Contacts RH liés
+    esnModalLinkedIds = [...(entry.contactRefIds || [])];
+    renderEsnLinkedContacts();
   } else {
     document.getElementById('esnEditId').value = '';
     document.getElementById('esnNom').value = '';
@@ -1678,7 +1787,11 @@ function openEsnModal(id) {
     document.getElementById('esnLinkedin').value = '';
     document.getElementById('esnNotes').value = '';
     document.getElementById('esnContactsList').innerHTML = '';
+    // Reset contacts RH liés
+    esnModalLinkedIds = [];
+    document.getElementById('esnLinkedContactsList').innerHTML = '';
   }
+  document.getElementById('esnLinkContactContainer').style.display = 'none';
 
   modal.classList.add('active');
   document.getElementById('esnNom').focus();
@@ -1724,6 +1837,99 @@ function collectContacts() {
   return contacts;
 }
 
+// === LIAISON CONTACTS RH ↔ ESN ===
+let esnModalLinkedIds = [];
+
+function resolveContactRef(contactId) {
+  return contactsData.find(c => c.id === contactId) || null;
+}
+
+function showLinkContactRH() {
+  const container = document.getElementById('esnLinkContactContainer');
+  const isVisible = container.style.display !== 'none';
+  container.style.display = isVisible ? 'none' : 'block';
+  if (!isVisible) {
+    const input = document.getElementById('esnLinkContactSearch');
+    input.value = '';
+    input.focus();
+    filterContactRHAutocomplete('');
+  }
+}
+
+function filterContactRHAutocomplete(query) {
+  const dropdown = document.getElementById('esnLinkContactDropdown');
+  const q = query.toLowerCase().trim();
+  const alreadyLinked = new Set(esnModalLinkedIds);
+
+  let results = contactsData.filter(c => {
+    if (alreadyLinked.has(c.id)) return false;
+    if (!q) return true;
+    return c.nom.toLowerCase().includes(q) ||
+           (c.entreprise || '').toLowerCase().includes(q) ||
+           (c.role || '').toLowerCase().includes(q) ||
+           (c.email || '').toLowerCase().includes(q);
+  }).slice(0, 10);
+
+  if (results.length === 0) {
+    dropdown.innerHTML = '<div style="padding:10px;font-size:0.8rem;color:var(--text2);">Aucun contact RH disponible</div>';
+  } else {
+    dropdown.innerHTML = results.map(c => `
+      <div class="rh-autocomplete-item" onclick="linkContactRH('${c.id}')">
+        <div><strong>${esc(c.nom)}</strong>${c.role ? ` — ${esc(c.role)}` : ''}</div>
+        <span class="rh-item-company">${esc(c.entreprise || '')}</span>
+      </div>
+    `).join('');
+  }
+  dropdown.classList.add('visible');
+}
+
+function linkContactRH(contactId) {
+  if (!esnModalLinkedIds.includes(contactId)) {
+    esnModalLinkedIds.push(contactId);
+  }
+  renderEsnLinkedContacts();
+  document.getElementById('esnLinkContactContainer').style.display = 'none';
+  toast('🔗 Contact RH lié');
+}
+
+function unlinkContactRH(contactId) {
+  esnModalLinkedIds = esnModalLinkedIds.filter(id => id !== contactId);
+  renderEsnLinkedContacts();
+  toast('🔗 Contact RH délié', 'var(--orange)');
+}
+
+function renderEsnLinkedContacts() {
+  const container = document.getElementById('esnLinkedContactsList');
+  if (esnModalLinkedIds.length === 0) { container.innerHTML = ''; return; }
+  const statusLabels = {'a-contacter':'📧','contacte':'✅','rdv':'📅','suivi':'🔄','dead':'💀'};
+  container.innerHTML = esnModalLinkedIds.map(id => {
+    const c = resolveContactRef(id);
+    if (!c) return `
+      <div class="esn-linked-ref" style="opacity:0.5;">
+        <div class="esn-linked-ref-info"><span style="color:var(--red);">⚠️ Contact supprimé</span></div>
+        <button class="btn btn-small btn-danger" onclick="unlinkContactRH('${id}')">✕</button>
+      </div>`;
+    return `
+      <div class="esn-linked-ref">
+        <div class="esn-linked-ref-info">
+          <strong>${esc(c.nom)}</strong>${c.role ? ` — <span class="ref-role">${esc(c.role)}</span>` : ''}
+          <div style="font-size:0.72rem;color:var(--text2);margin-top:2px;">
+            ${statusLabels[c.statut] || ''} ${esc(c.entreprise || '')} ${c.email ? `· ${esc(c.email)}` : ''}
+          </div>
+        </div>
+        <button class="btn btn-small btn-danger" onclick="unlinkContactRH('${c.id}')">✕ Délier</button>
+      </div>`;
+  }).join('');
+}
+
+// Fermer dropdown autocomplete au clic extérieur
+document.addEventListener('click', function(e) {
+  const container = document.getElementById('esnLinkContactContainer');
+  if (container && !container.contains(e.target) && !e.target.matches('[onclick*="showLinkContactRH"]')) {
+    document.getElementById('esnLinkContactDropdown').classList.remove('visible');
+  }
+});
+
 function saveEsn() {
   const nom = document.getElementById('esnNom').value.trim();
   if (!nom) { toast('⚠️ Nom ESN requis', 'var(--orange)'); return; }
@@ -1740,6 +1946,7 @@ function saveEsn() {
     specialites: document.getElementById('esnSpecialites').value.trim(),
     linkedin: document.getElementById('esnLinkedin').value.trim(),
     contacts: collectContacts(),
+    contactRefIds: [...esnModalLinkedIds],
     notes: document.getElementById('esnNotes').value.trim(),
     updatedAt: new Date().toISOString()
   };
@@ -2072,6 +2279,15 @@ function deleteContact() {
   const id = document.getElementById('contactEditId').value;
   if (!id || !confirm('Supprimer ce contact ?')) return;
   contactsData = contactsData.filter(c => c.id !== id);
+  // Nettoyer les références dans les ESN
+  let cleaned = 0;
+  esnData.forEach(e => {
+    if (e.contactRefIds && e.contactRefIds.includes(id)) {
+      e.contactRefIds = e.contactRefIds.filter(refId => refId !== id);
+      cleaned++;
+    }
+  });
+  if (cleaned > 0) saveEsnData();
   saveContactsData();
   closeContactModal();
   renderContactsStats();
