@@ -607,6 +607,8 @@
     <button class="filter-btn" data-esn-filter="new" onclick="setEsnFilter('new', this)">🔵 Nouveau</button>
     <button class="filter-btn" data-esn-filter="cold" onclick="setEsnFilter('cold', this)">⚪ Cold</button>
     <div style="flex:1"></div>
+    <button class="btn btn-secondary" onclick="exportEsnData()">📤 Exporter</button>
+    <button class="btn btn-secondary" onclick="importEsnData()">📥 Importer</button>
     <button class="btn btn-primary" onclick="openEsnModal()">+ Ajouter</button>
   </div>
   <div class="esn-grid" id="esnGrid"></div>
@@ -632,6 +634,8 @@
     <button class="filter-btn" data-contacts-filter="priorite-important" onclick="setContactsFilter('priorite-important', this)">🟠 Important</button>
     <button class="filter-btn" data-contacts-filter="priorite-normal" onclick="setContactsFilter('priorite-normal', this)">🟡 Normal</button>
     <div style="flex:1"></div>
+    <button class="btn btn-secondary" onclick="exportContactsData()">📤 Exporter</button>
+    <button class="btn btn-secondary" onclick="importContactsData()">📥 Importer</button>
     <button class="btn btn-primary" onclick="openContactModal()">+ Ajouter Contact</button>
   </div>
   <div class="esn-grid" id="contactsGrid"></div>
@@ -1390,6 +1394,42 @@ function exportData() {
 }
 
 function importData() {
+  importJsonMerge('candidatures', (imported) => {
+    const existingIds = new Set(data.map(d => d.id));
+    let added = 0;
+    imported.forEach(item => {
+      if (!existingIds.has(item.id)) { data.push(item); added++; }
+    });
+    if (added > 0) { save(); renderStats(); renderTable(); updateTabCounts(); }
+    return added;
+  });
+}
+
+function importEsnData() {
+  importJsonMerge('ESN', (imported) => {
+    const existingIds = new Set(esnData.map(d => d.id));
+    let added = 0;
+    imported.forEach(item => {
+      if (!existingIds.has(item.id)) { esnData.push(item); added++; }
+    });
+    if (added > 0) { saveEsnData(); renderEsnStats(); renderEsnGrid(); updateTabCounts(); }
+    return added;
+  });
+}
+
+function importContactsData() {
+  importJsonMerge('contacts RH', (imported) => {
+    const existingIds = new Set(contactsData.map(d => d.id));
+    let added = 0;
+    imported.forEach(item => {
+      if (!existingIds.has(item.id)) { contactsData.push(item); added++; }
+    });
+    if (added > 0) { saveContactsData(); renderContactsStats(); renderContactsGrid(); updateTabCounts(); }
+    return added;
+  });
+}
+
+function importJsonMerge(label, mergeFn) {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json';
@@ -1401,16 +1441,37 @@ function importData() {
       try {
         const imported = JSON.parse(ev.target.result);
         if (!Array.isArray(imported)) throw new Error('Format invalide');
-        if (confirm(`Importer ${imported.length} candidatures ? (les données actuelles seront remplacées)`)) {
-          data = imported;
-          save();
-          toast(`📥 ${imported.length} candidatures importées`);
+        if (confirm(`Fusionner ${imported.length} ${label} ? (les doublons seront ignorés)`)) {
+          const added = mergeFn(imported);
+          toast(`📥 ${added} ${label} ajoutée(s), ${imported.length - added} doublon(s) ignoré(s)`);
         }
       } catch(err) { toast('❌ Fichier invalide', 'var(--red)'); }
     };
     reader.readAsText(file);
   };
   input.click();
+}
+
+function exportEsnData() {
+  const blob = new Blob([JSON.stringify(esnData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `esn-directory-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📤 ESN exportées');
+}
+
+function exportContactsData() {
+  const blob = new Blob([JSON.stringify(contactsData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `contacts-rh-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📤 Contacts RH exportés');
 }
 
 // TOAST
