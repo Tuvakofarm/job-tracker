@@ -932,6 +932,14 @@
       <textarea id="fNotes" placeholder="Détails, impressions, retours..."></textarea>
     </div>
 
+    <div style="margin-top:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <label style="font-size:0.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;">📞 Entretiens</label>
+        <button type="button" class="btn btn-small btn-secondary edit-action" onclick="addEntretienField()">+ Ajouter</button>
+      </div>
+      <div id="entretiensList"></div>
+    </div>
+
     <div id="timelineContainer"></div>
 
     <div class="modal-actions">
@@ -1042,6 +1050,7 @@ function toDbCandidature(c) {
     statut: c.statut, relance_date: c.relanceDate,
     lieu: c.lieu, url: c.url, salaire: c.salaire,
     notes: c.notes, history: c.history || [],
+    entretiens: c.entretiens || [],
     esn_id: c.esnId || null, contact_ref_id: c.contactRefId || null,
     created_at: c.createdAt, updated_at: c.updatedAt
   };
@@ -1053,6 +1062,7 @@ function fromDbCandidature(row) {
     statut: row.statut, relanceDate: row.relance_date,
     lieu: row.lieu, url: row.url, salaire: row.salaire,
     notes: row.notes, history: row.history || [],
+    entretiens: row.entretiens || [],
     esnId: row.esn_id || null, contactRefId: row.contact_ref_id || null,
     createdAt: row.created_at, updatedAt: row.updated_at
   };
@@ -1206,13 +1216,14 @@ function renderStats() {
   data.forEach(d => { if (counts[d.statut] !== undefined) counts[d.statut]++; });
 
   const active = total - counts.refus - counts.ghosted;
+  const entretiensCount = data.filter(d => (d.entretiens || []).length > 0).length;
   const tauxReponse = total > 0 ? Math.round(((counts.entretien + counts.offre + counts.refus) / total) * 100) : 0;
 
   document.getElementById('stats-bar').innerHTML = `
     <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">Total</div></div>
     <div class="stat-card"><div class="stat-number" style="color:var(--blue)">${counts.envoyee}</div><div class="stat-label">En attente</div></div>
     <div class="stat-card"><div class="stat-number" style="color:var(--orange)">${counts.relancee}</div><div class="stat-label">Relancées</div></div>
-    <div class="stat-card"><div class="stat-number" style="color:var(--purple)">${counts.entretien}</div><div class="stat-label">Entretiens</div></div>
+    <div class="stat-card"><div class="stat-number" style="color:var(--purple)">${entretiensCount}</div><div class="stat-label">Entretiens</div></div>
     <div class="stat-card"><div class="stat-number" style="color:var(--green)">${counts.offre}</div><div class="stat-label">Offres</div></div>
     <div class="stat-card"><div class="stat-number" style="color:var(--red)">${relanceDue}</div><div class="stat-label">🔴 Relances</div></div>
     <div class="stat-card"><div class="stat-number" style="color:var(--yellow)">${tauxReponse}%</div><div class="stat-label">Taux réponse</div></div>
@@ -1236,6 +1247,7 @@ function renderTable() {
   const query = document.getElementById('searchInput').value.toLowerCase();
   let filtered = data.filter(d => {
     if (currentFilter === 'relance-due') return isRelanceDue(d);
+    if (currentFilter === 'entretien') return (d.entretiens || []).length > 0;
     if (currentFilter !== 'all' && d.statut !== currentFilter) return false;
     if (query) {
       const hay = `${d.entreprise} ${d.poste} ${d.contact} ${d.lieu} ${d.notes} ${d.source}`.toLowerCase();
@@ -1280,7 +1292,7 @@ function renderTable() {
       <td>${esc(d.poste)}${d.url ? ` <a href="${esc(d.url)}" target="_blank" style="color:var(--accent)">🔗</a>` : ''}</td>
       <td>${esc(d.contact) || '<span style="color:var(--text2)">—</span>'}${d.contactRefId ? ' <span class="rh-badge" style="font-size:0.55rem;">👤</span>' : ''}</td>
       <td>${esc(d.source)}</td>
-      <td><span class="badge ${badgeClass}">${statutLabels[d.statut] || d.statut}</span></td>
+      <td><span class="badge ${badgeClass}">${statutLabels[d.statut] || d.statut}</span>${(d.entretiens || []).length > 0 ? `<br><span style="font-size:0.7rem;color:var(--purple);">📞 ${d.entretiens.length} entretien${d.entretiens.length > 1 ? 's' : ''}</span>` : ''}</td>
       <td>${relanceHtml}</td>
       <td title="${esc(d.notes)}">${esc(truncate(d.notes, 40))}</td>
       <td class="actions-cell">
@@ -1339,6 +1351,7 @@ function openModal(id) {
     document.getElementById('fPickContactBtn').style.display = entry.esnId ? 'inline-flex' : 'none';
     document.getElementById('fContactLinkedBadge').style.display = entry.contactRefId ? 'block' : 'none';
     // Timeline
+    renderEntretienFields(entry.entretiens || []);
     renderTimeline(entry);
   } else {
     document.getElementById('editId').value = '';
@@ -1353,6 +1366,7 @@ function openModal(id) {
     document.getElementById('fUrl').value = '';
     document.getElementById('fSalaire').value = '';
     document.getElementById('fNotes').value = '';
+    document.getElementById('entretiensList').innerHTML = '';
     document.getElementById('timelineContainer').innerHTML = '';
     // Clear ESN/Contact links
     document.getElementById('fEsnId').value = '';
@@ -1514,6 +1528,48 @@ function renderTimeline(entry) {
   document.getElementById('timelineContainer').innerHTML = html;
 }
 
+// === ENTRETIENS ===
+const entretienTypes = {
+  telephone: '📞 Téléphonique',
+  visio: '💻 Visio',
+  presentiel: '🏢 Présentiel',
+  technique: '⚙️ Technique',
+  rh: '👤 RH',
+  autre: '📋 Autre'
+};
+
+function addEntretienField(prefill) {
+  const list = document.getElementById('entretiensList');
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:6px;align-items:center;margin-bottom:6px;';
+  div.innerHTML = `
+    <input type="date" class="entretien-date" value="${prefill ? prefill.date || '' : new Date().toISOString().split('T')[0]}" style="flex:0 0 140px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:0.8rem;">
+    <select class="entretien-type" style="flex:0 0 140px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:0.8rem;">
+      ${Object.entries(entretienTypes).map(([k, v]) => `<option value="${k}"${prefill && prefill.type === k ? ' selected' : ''}>${v}</option>`).join('')}
+    </select>
+    <input type="text" class="entretien-notes" placeholder="Notes..." value="${prefill ? esc(prefill.notes || '') : ''}" style="flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:0.8rem;">
+    <button type="button" class="btn btn-small btn-danger edit-action" onclick="this.parentElement.remove()" style="flex:0 0 auto;">✕</button>
+  `;
+  list.appendChild(div);
+}
+
+function collectEntretiens() {
+  const rows = document.querySelectorAll('#entretiensList > div');
+  const result = [];
+  rows.forEach(row => {
+    const date = row.querySelector('.entretien-date').value;
+    const type = row.querySelector('.entretien-type').value;
+    const notes = row.querySelector('.entretien-notes').value.trim();
+    if (date) result.push({ date, type, notes });
+  });
+  return result;
+}
+
+function renderEntretienFields(entretiens) {
+  document.getElementById('entretiensList').innerHTML = '';
+  (entretiens || []).forEach(e => addEntretienField(e));
+}
+
 // SAVE
 function saveEntry() {
   const entreprise = document.getElementById('fEntreprise').value.trim();
@@ -1538,9 +1594,16 @@ function saveEntry() {
     notes: document.getElementById('fNotes').value.trim(),
     esnId: document.getElementById('fEsnId').value || null,
     contactRefId: document.getElementById('fContactRefId').value || null,
+    entretiens: collectEntretiens(),
     history: [],
     updatedAt: new Date().toISOString()
   };
+
+  // Auto-set statut to "entretien" if interviews added and status is early-stage
+  if (entry.entretiens.length > 0 && (newStatut === 'envoyee' || newStatut === 'relancee')) {
+    entry.statut = 'entretien';
+    document.getElementById('fStatut').value = 'entretien';
+  }
 
   if (id) {
     const idx = data.findIndex(d => d.id === id);
@@ -1550,6 +1613,12 @@ function saveEntry() {
       entry.createdAt = old.createdAt;
       if (old.statut !== newStatut) {
         entry.history.push({ date: new Date().toISOString().split('T')[0], action: `Statut: ${old.statut} → ${newStatut}` });
+      }
+      // Track new interviews in history
+      const oldCount = (old.entretiens || []).length;
+      if (entry.entretiens.length > oldCount) {
+        const newest = entry.entretiens[entry.entretiens.length - 1];
+        entry.history.push({ date: new Date().toISOString().split('T')[0], action: `Entretien ajouté: ${entretienTypes[newest.type] || newest.type} le ${formatDate(newest.date)}` });
       }
       data[idx] = entry;
     }

@@ -84,3 +84,6 @@ CREATE POLICY "Public delete contacts_rh" ON contacts_rh FOR DELETE USING (true)
 -- MIGRATION: Lier candidatures aux ESN et contacts RH
 ALTER TABLE candidatures ADD COLUMN IF NOT EXISTS esn_id TEXT DEFAULT NULL;
 ALTER TABLE candidatures ADD COLUMN IF NOT EXISTS contact_ref_id TEXT DEFAULT NULL;
+
+-- MIGRATION: Entretiens comme entité trackée
+ALTER TABLE candidatures ADD COLUMN IF NOT EXISTS entretiens JSONB DEFAULT '[]'::jsonb;
