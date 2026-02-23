@@ -80,3 +80,7 @@ CREATE POLICY "Public read contacts_rh" ON contacts_rh FOR SELECT USING (true);
 CREATE POLICY "Public insert contacts_rh" ON contacts_rh FOR INSERT WITH CHECK (true);
 CREATE POLICY "Public update contacts_rh" ON contacts_rh FOR UPDATE USING (true);
 CREATE POLICY "Public delete contacts_rh" ON contacts_rh FOR DELETE USING (true);
+
+-- MIGRATION: Lier candidatures aux ESN et contacts RH
+ALTER TABLE candidatures ADD COLUMN IF NOT EXISTS esn_id TEXT DEFAULT NULL;
+ALTER TABLE candidatures ADD COLUMN IF NOT EXISTS contact_ref_id TEXT DEFAULT NULL;

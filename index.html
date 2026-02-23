@@ -844,9 +844,15 @@
     <input type="hidden" id="editId">
     
     <div class="form-row">
-      <div class="form-group">
+      <div class="form-group" style="position:relative;">
         <label>Entreprise *</label>
-        <input type="text" id="fEntreprise" placeholder="Ex: OVH, Decathlon IT..." required>
+        <input type="text" id="fEntreprise" placeholder="Ex: OVH, Decathlon IT..." required autocomplete="off"
+               oninput="filterEsnAutocomplete(this.value)" onfocus="filterEsnAutocomplete(this.value)">
+        <input type="hidden" id="fEsnId">
+        <div id="fEsnLinkedBadge" class="edit-action" style="display:none;margin-top:4px;">
+          <span class="rh-badge" style="cursor:pointer;" onclick="unlinkEsnFromCandidature()">🏢 Fiche ESN liée ✕</span>
+        </div>
+        <div id="fEsnDropdown" class="rh-autocomplete-dropdown"></div>
       </div>
       <div class="form-group">
         <label>Poste *</label>
@@ -855,9 +861,16 @@
     </div>
 
     <div class="form-row">
-      <div class="form-group">
+      <div class="form-group" style="position:relative;">
         <label>Contact / Recruteur</label>
-        <input type="text" id="fContact" placeholder="Nom, email, tel...">
+        <input type="text" id="fContact" placeholder="Nom, email, tel..." autocomplete="off">
+        <input type="hidden" id="fContactRefId">
+        <div id="fContactLinkedBadge" class="edit-action" style="display:none;margin-top:4px;">
+          <span class="rh-badge" style="cursor:pointer;" onclick="unlinkContactFromCandidature()">👤 Fiche RH liée ✕</span>
+        </div>
+        <button type="button" class="btn btn-small btn-secondary edit-action" id="fPickContactBtn"
+                style="display:none;margin-top:4px;" onclick="showCandidatureContactPicker()">🔗 Choisir un contact</button>
+        <div id="fContactDropdown" class="rh-autocomplete-dropdown"></div>
       </div>
       <div class="form-group">
         <label>Source</label>
@@ -865,6 +878,7 @@
           <option value="Indeed">Indeed</option>
           <option value="LinkedIn">LinkedIn</option>
           <option value="HelloWork">HelloWork</option>
+          <option value="Meteojob">Meteojob</option>
           <option value="France Travail">France Travail</option>
           <option value="Site entreprise">Site entreprise</option>
           <option value="Cooptation">Cooptation</option>
@@ -1028,6 +1042,7 @@ function toDbCandidature(c) {
     statut: c.statut, relance_date: c.relanceDate,
     lieu: c.lieu, url: c.url, salaire: c.salaire,
     notes: c.notes, history: c.history || [],
+    esn_id: c.esnId || null, contact_ref_id: c.contactRefId || null,
     created_at: c.createdAt, updated_at: c.updatedAt
   };
 }
@@ -1038,6 +1053,7 @@ function fromDbCandidature(row) {
     statut: row.statut, relanceDate: row.relance_date,
     lieu: row.lieu, url: row.url, salaire: row.salaire,
     notes: row.notes, history: row.history || [],
+    esnId: row.esn_id || null, contactRefId: row.contact_ref_id || null,
     createdAt: row.created_at, updatedAt: row.updated_at
   };
 }
@@ -1260,9 +1276,9 @@ function renderTable() {
 
     return `<tr ondblclick="openModal('${d.id}')">
       <td>${formatDate(d.date)}</td>
-      <td><strong>${esc(d.entreprise)}</strong>${d.lieu ? `<br><span style="color:var(--text2);font-size:0.75rem">📍 ${esc(d.lieu)}</span>` : ''}</td>
+      <td><strong>${esc(d.entreprise)}</strong>${d.esnId ? ' <span class="rh-badge" style="font-size:0.55rem;">🏢</span>' : ''}${d.lieu ? `<br><span style="color:var(--text2);font-size:0.75rem">📍 ${esc(d.lieu)}</span>` : ''}</td>
       <td>${esc(d.poste)}${d.url ? ` <a href="${esc(d.url)}" target="_blank" style="color:var(--accent)">🔗</a>` : ''}</td>
-      <td>${esc(d.contact) || '<span style="color:var(--text2)">—</span>'}</td>
+      <td>${esc(d.contact) || '<span style="color:var(--text2)">—</span>'}${d.contactRefId ? ' <span class="rh-badge" style="font-size:0.55rem;">👤</span>' : ''}</td>
       <td>${esc(d.source)}</td>
       <td><span class="badge ${badgeClass}">${statutLabels[d.statut] || d.statut}</span></td>
       <td>${relanceHtml}</td>
@@ -1316,6 +1332,12 @@ function openModal(id) {
     document.getElementById('fUrl').value = entry.url || '';
     document.getElementById('fSalaire').value = entry.salaire || '';
     document.getElementById('fNotes').value = entry.notes || '';
+    // ESN/Contact links
+    document.getElementById('fEsnId').value = entry.esnId || '';
+    document.getElementById('fContactRefId').value = entry.contactRefId || '';
+    document.getElementById('fEsnLinkedBadge').style.display = entry.esnId ? 'block' : 'none';
+    document.getElementById('fPickContactBtn').style.display = entry.esnId ? 'inline-flex' : 'none';
+    document.getElementById('fContactLinkedBadge').style.display = entry.contactRefId ? 'block' : 'none';
     // Timeline
     renderTimeline(entry);
   } else {
@@ -1332,13 +1354,148 @@ function openModal(id) {
     document.getElementById('fSalaire').value = '';
     document.getElementById('fNotes').value = '';
     document.getElementById('timelineContainer').innerHTML = '';
+    // Clear ESN/Contact links
+    document.getElementById('fEsnId').value = '';
+    document.getElementById('fContactRefId').value = '';
+    document.getElementById('fEsnLinkedBadge').style.display = 'none';
+    document.getElementById('fPickContactBtn').style.display = 'none';
+    document.getElementById('fContactLinkedBadge').style.display = 'none';
   }
 
   modal.classList.add('active');
   document.getElementById('fEntreprise').focus();
 }
 
-function closeModal() { document.getElementById('modal').classList.remove('active'); }
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+  document.getElementById('fEsnDropdown').classList.remove('visible');
+  document.getElementById('fContactDropdown').classList.remove('visible');
+}
+
+// === CANDIDATURE ↔ ESN/CONTACT LINKING ===
+
+function filterEsnAutocomplete(query) {
+  const dropdown = document.getElementById('fEsnDropdown');
+  const q = query.toLowerCase().trim();
+
+  // If ESN is linked and user changes text, unlink
+  const linkedId = document.getElementById('fEsnId').value;
+  if (linkedId) {
+    const linkedEsn = esnData.find(e => e.id === linkedId);
+    if (linkedEsn && linkedEsn.nom !== document.getElementById('fEntreprise').value.trim()) {
+      unlinkEsnFromCandidature();
+    }
+  }
+
+  if (!q || q.length < 2) { dropdown.classList.remove('visible'); return; }
+
+  const results = esnData.filter(e => e.nom.toLowerCase().includes(q)).slice(0, 8);
+  if (results.length === 0) { dropdown.classList.remove('visible'); return; }
+
+  const typeLabels = { esn:'🏢 ESN', cabinet:'🎯 Cabinet', interim:'⏳ Intérim' };
+  dropdown.innerHTML = results.map(e => `
+    <div class="rh-autocomplete-item" onclick="selectEsnForCandidature('${e.id}')">
+      <div><strong>${esc(e.nom)}</strong></div>
+      <span class="rh-item-company">${typeLabels[e.type] || e.type}${e.ville ? ' · ' + esc(e.ville) : ''}</span>
+    </div>
+  `).join('');
+  dropdown.classList.add('visible');
+}
+
+function selectEsnForCandidature(esnId) {
+  const esn = esnData.find(e => e.id === esnId);
+  if (!esn) return;
+  document.getElementById('fEntreprise').value = esn.nom;
+  document.getElementById('fEsnId').value = esnId;
+  document.getElementById('fEsnDropdown').classList.remove('visible');
+  document.getElementById('fEsnLinkedBadge').style.display = 'block';
+  document.getElementById('fPickContactBtn').style.display = 'inline-flex';
+  // Auto-fill lieu if empty
+  if (esn.ville && !document.getElementById('fLieu').value.trim()) {
+    document.getElementById('fLieu').value = esn.ville;
+  }
+}
+
+function unlinkEsnFromCandidature() {
+  document.getElementById('fEsnId').value = '';
+  document.getElementById('fEsnLinkedBadge').style.display = 'none';
+  document.getElementById('fPickContactBtn').style.display = 'none';
+  unlinkContactFromCandidature();
+}
+
+function showCandidatureContactPicker() {
+  const esnId = document.getElementById('fEsnId').value;
+  if (!esnId) return;
+  const esn = esnData.find(e => e.id === esnId);
+  if (!esn) return;
+
+  const dropdown = document.getElementById('fContactDropdown');
+  let items = [];
+
+  // 1. Contacts RH liés via contactRefIds
+  (esn.contactRefIds || []).forEach(refId => {
+    const c = contactsData.find(rc => rc.id === refId);
+    if (!c) return;
+    const info = c.email || c.linkedin || c.telephone || '';
+    items.push(`<div class="rh-autocomplete-item" onclick="selectContactForCandidature('${c.id}')">
+      <div><strong>${esc(c.nom)}</strong>${c.role ? ' — ' + esc(c.role) : ''} <span class="rh-badge" style="font-size:0.6rem;">Fiche RH</span></div>
+      <span class="rh-item-company">${esc(info)}</span>
+    </div>`);
+  });
+
+  // 2. Contacts inline de l'ESN
+  (esn.contacts || []).forEach((c, idx) => {
+    if (!c.nom && !c.email) return;
+    const info = c.email || c.linkedin || c.telephone || '';
+    items.push(`<div class="rh-autocomplete-item" onclick="selectInlineContactForCandidature('${esnId}', ${idx})">
+      <div><strong>${esc(c.nom || 'Contact ' + (idx+1))}</strong>${c.role ? ' — ' + esc(c.role) : ''}</div>
+      <span class="rh-item-company">${esc(info)}</span>
+    </div>`);
+  });
+
+  if (items.length === 0) {
+    dropdown.innerHTML = '<div style="padding:10px;font-size:0.8rem;color:var(--text2);">Aucun contact pour cette ESN</div>';
+  } else {
+    dropdown.innerHTML = items.join('');
+  }
+  dropdown.classList.add('visible');
+}
+
+function selectContactForCandidature(contactRefId) {
+  const c = contactsData.find(rc => rc.id === contactRefId);
+  if (!c) return;
+  document.getElementById('fContact').value = c.email || c.linkedin || c.nom;
+  document.getElementById('fContactRefId').value = contactRefId;
+  document.getElementById('fContactDropdown').classList.remove('visible');
+  document.getElementById('fContactLinkedBadge').style.display = 'block';
+}
+
+function selectInlineContactForCandidature(esnId, idx) {
+  const esn = esnData.find(e => e.id === esnId);
+  if (!esn || !esn.contacts[idx]) return;
+  const c = esn.contacts[idx];
+  document.getElementById('fContact').value = c.email || c.linkedin || c.nom;
+  document.getElementById('fContactRefId').value = '';
+  document.getElementById('fContactDropdown').classList.remove('visible');
+  document.getElementById('fContactLinkedBadge').style.display = 'none';
+}
+
+function unlinkContactFromCandidature() {
+  document.getElementById('fContactRefId').value = '';
+  document.getElementById('fContactLinkedBadge').style.display = 'none';
+}
+
+// Close dropdowns on outside click
+document.addEventListener('click', function(e) {
+  const esnDd = document.getElementById('fEsnDropdown');
+  if (esnDd && !esnDd.contains(e.target) && e.target.id !== 'fEntreprise') {
+    esnDd.classList.remove('visible');
+  }
+  const contactDd = document.getElementById('fContactDropdown');
+  if (contactDd && !contactDd.contains(e.target) && !e.target.matches('[onclick*="showCandidatureContactPicker"]')) {
+    contactDd.classList.remove('visible');
+  }
+});
 
 function getDefaultRelance() {
   const d = new Date();
@@ -1379,6 +1536,8 @@ function saveEntry() {
     url: document.getElementById('fUrl').value.trim(),
     salaire: document.getElementById('fSalaire').value.trim(),
     notes: document.getElementById('fNotes').value.trim(),
+    esnId: document.getElementById('fEsnId').value || null,
+    contactRefId: document.getElementById('fContactRefId').value || null,
     history: [],
     updatedAt: new Date().toISOString()
   };
@@ -1398,6 +1557,18 @@ function saveEntry() {
     entry.createdAt = new Date().toISOString();
     entry.history = [{ date: entry.date, action: 'Candidature créée' }];
     data.push(entry);
+  }
+
+  // Sync bidirectional link ESN → candidature
+  if (entry.esnId) {
+    const esn = esnData.find(e => e.id === entry.esnId);
+    if (esn) {
+      esn.candidatureIds = esn.candidatureIds || [];
+      if (!esn.candidatureIds.includes(entry.id)) {
+        esn.candidatureIds.push(entry.id);
+        saveEsnData();
+      }
+    }
   }
 
   save();
